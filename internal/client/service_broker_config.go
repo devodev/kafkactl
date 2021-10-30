@@ -3,14 +3,16 @@ package client
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	v3 "github.com/devodev/kafkactl/internal/api/v3"
 	"github.com/devodev/kafkactl/internal/presentation"
 )
 
 const (
-	brokerConfigListEndpoint = "/v3/clusters/%s/brokers/%d/configs"
-	brokerConfigGetEndpoint  = "/v3/clusters/%s/brokers/%d/configs/%s"
+	brokerConfigListEndpoint       = "/v3/clusters/%s/brokers/%d/configs"
+	brokerConfigGetEndpoint        = "/v3/clusters/%s/brokers/%d/configs/%s"
+	brokerConfigBatchAlterEndpoint = "/v3/clusters/%s/brokers/%d/configs:alter"
 )
 
 type ServiceBrokerConfig service
@@ -59,4 +61,17 @@ func (s *ServiceBrokerConfig) GetWide(ctx context.Context, clusterID string, bro
 	}
 	brokerConfig := presentation.MapBrokerConfig(&brokerConfigResp.BrokerConfigData)
 	return brokerConfig, nil
+}
+
+func (s *ServiceBrokerConfig) BatchAlter(ctx context.Context, clusterID string, brokerID int, payload *v3.BrokerConfigBatchAlterRequest) (string, error) {
+	var statusRetriever StatusRetriever
+	if err := s.client.Post(ctx, fmt.Sprintf(brokerConfigBatchAlterEndpoint, clusterID, brokerID), payload, nil, statusRetriever.HttpOption); err != nil {
+		return "", err
+	}
+
+	if statusRetriever.Code != http.StatusNoContent {
+		return "", fmt.Errorf(statusRetriever.Status)
+	}
+	response := fmt.Sprintf("Configs of broker with ID '%d' updated/reset successfully", brokerID)
+	return response, nil
 }

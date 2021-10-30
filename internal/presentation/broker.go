@@ -53,6 +53,16 @@ func (b BrokerList) brokerIDs() []int {
 	return brokerIDs
 }
 
+func (b BrokerList) BrokerIDMap() map[int]struct{} {
+	m := make(map[int]struct{})
+
+	brokerIDs := b.brokerIDs()
+	for _, id := range brokerIDs {
+		m[id] = struct{}{}
+	}
+	return m
+}
+
 func (b BrokerList) TableHeader() []string {
 	return brokerHeader
 }

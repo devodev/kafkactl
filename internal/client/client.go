@@ -212,10 +212,6 @@ func (c *KafkaRest) handleResponse(resp *http.Response, result interface{}) erro
 		funcLog.Debugf("handleResponse will not decode empty body")
 		return nil
 	}
-	if result == nil {
-		funcLog.Debugf("handleResponse will not decode because nil passed as result receiver")
-		return nil
-	}
 
 	jsonDecoder := json.NewDecoder(bytes.NewReader(body))
 	// handle http error
@@ -225,6 +221,11 @@ func (c *KafkaRest) handleResponse(resp *http.Response, result interface{}) erro
 			return clientError
 		}
 		return fmt.Errorf("unknown error (%d): %s", resp.StatusCode, resp.Status)
+	}
+
+	if result == nil {
+		funcLog.Debugf("handleResponse will not decode because nil passed as result receiver")
+		return nil
 	}
 
 	if err := jsonDecoder.Decode(&result); err != nil {

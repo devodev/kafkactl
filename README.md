@@ -30,9 +30,9 @@ make gendoc
 - [ ] Add "Produce records" command
 - [ ] Add get broker tasks command
 - [x] Add update command
+  - [x] Add update broker-config
   - [x] Add update topic-config
   - [ ] Add update cluster-config
-  - [ ] Add update broker-config
 - [ ] Add delete command
   - [ ] Add delete acl
   - [ ] Add delete broker

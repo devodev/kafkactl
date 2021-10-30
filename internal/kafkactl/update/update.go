@@ -18,6 +18,7 @@ func New() *cobra.Command {
 
 	cmd.PersistentFlags().AddFlagSet(c.Flags())
 
+	cmd.AddCommand(newCmdupdateBrokerConfig(c))
 	cmd.AddCommand(newCmdUpdateTopicConfig(c))
 
 	return cmd

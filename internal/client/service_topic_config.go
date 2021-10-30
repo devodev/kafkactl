@@ -52,9 +52,9 @@ func (s *ServiceTopicConfig) BatchAlter(ctx context.Context, clusterID, topicNam
 	if err := s.client.Post(ctx, fmt.Sprintf(topicConfigBatchAlterEndpoint, clusterID, topicName), payload, nil, statusRetriever.HttpOption); err != nil {
 		return "", err
 	}
-	response := statusRetriever.Status
-	if statusRetriever.Code == http.StatusNoContent {
-		response = fmt.Sprintf("Topic configs of '%s' updated successfully", topicName)
+	if statusRetriever.Code != http.StatusNoContent {
+		return "", fmt.Errorf(statusRetriever.Status)
 	}
+	response := fmt.Sprintf("Configs of topic with name '%s' updated/reset successfully", topicName)
 	return response, nil
 }

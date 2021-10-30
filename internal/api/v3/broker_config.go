@@ -1,5 +1,9 @@
 package v3
 
+var (
+	BrokerConfigDeleteOperation string = "DELETE"
+)
+
 type BrokerConfigData struct {
 	V3BaseData
 	ClusterID   string `json:"cluster_id"`
@@ -24,4 +28,14 @@ type BrokerConfigListResponse struct {
 
 type BrokerConfigGetResponse struct {
 	BrokerConfigData
+}
+
+type BrokerConfigBatchAlterData struct {
+	Name      string `json:"name"`
+	Value     string `json:"value,omitempty"`
+	Operation string `json:"operation,omitempty"`
+}
+
+type BrokerConfigBatchAlterRequest struct {
+	Data []BrokerConfigBatchAlterData `json:"data"`
 }

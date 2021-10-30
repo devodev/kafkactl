@@ -21,19 +21,24 @@ func KeyValueDeleteParse(sep string, delChar string, values []string) (map[strin
 	keyPairs := make(map[string]string, len(values))
 	for _, value := range values {
 		keyPair := strings.Split(value, sep)
-		if len(keyPair) == 0 {
+		keyPairLen := len(keyPair)
+
+		if keyPairLen == 0 {
 			continue
 		}
-		if len(keyPair) > 2 {
+		if keyPairLen > 2 {
 			return nil, fmt.Errorf("invalid format (key%svalue): %s", sep, value)
 		}
 
 		key := keyPair[0]
 		if key == "" {
-			continue
+			return nil, fmt.Errorf("invalid format: key empty")
 		}
 
-		if len(keyPair) == 1 && strings.HasSuffix(key, delChar) {
+		if len(keyPair) == 1 {
+			if !strings.HasSuffix(key, delChar) {
+				return nil, fmt.Errorf("invalid format: %s", keyPair[0])
+			}
 			key = key[:len(key)-1]
 		}
 

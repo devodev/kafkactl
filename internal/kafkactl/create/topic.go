@@ -90,7 +90,7 @@ func (o *createTopicOptions) makeRequest(topic string) (*v3.TopicCreateRequest, 
 
 	topicConfigs, err := util.KeyValueParse("=", o.configs)
 	if err != nil {
-		return nil, fmt.Errorf("could not parse config flags: %s", err.Error())
+		return nil, fmt.Errorf("could not parse config key-value pair: %s", err.Error())
 	}
 	if len(topicConfigs) > 0 {
 		req.Configs = make([]v3.TopicConfig, 0, len(topicConfigs))

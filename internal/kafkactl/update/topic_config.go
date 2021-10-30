@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type updateTopicConfiOptions struct {
+type updateTopicConfigOptions struct {
 	cli *cli.CLI
 
 	topic   string
@@ -21,7 +21,7 @@ type updateTopicConfiOptions struct {
 }
 
 func newCmdUpdateTopicConfig(c *cli.CLI) *cobra.Command {
-	o := updateTopicConfiOptions{cli: c}
+	o := updateTopicConfigOptions{cli: c}
 
 	cmd := &cobra.Command{
 		Use:     "topic-config TOPIC_NAME KEYVALUE_PAIR [KEYVALUE_PAIR..]",
@@ -45,7 +45,7 @@ func newCmdUpdateTopicConfig(c *cli.CLI) *cobra.Command {
 	return cmd
 }
 
-func (o *updateTopicConfiOptions) setup(cmd *cobra.Command, args []string) error {
+func (o *updateTopicConfigOptions) setup(cmd *cobra.Command, args []string) error {
 	if err := o.cli.Init(cmd, args); err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func (o *updateTopicConfiOptions) setup(cmd *cobra.Command, args []string) error
 	return nil
 }
 
-func (o *updateTopicConfiOptions) validate() error {
+func (o *updateTopicConfigOptions) validate() error {
 	if err := o.cli.Validate(); err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func (o *updateTopicConfiOptions) validate() error {
 	return nil
 }
 
-func (o *updateTopicConfiOptions) run() error {
+func (o *updateTopicConfigOptions) run() error {
 	status, err := o.cli.Client.TopicConfig.BatchAlter(context.Background(), o.cli.Context.ClusterID, o.topic, o.request)
 	if err != nil {
 		return util.MakeCLIError("update", "topic-config", err)
@@ -81,12 +81,12 @@ func (o *updateTopicConfiOptions) run() error {
 	return nil
 }
 
-func (o *updateTopicConfiOptions) makeRequest() (*v3.TopicConfigBatchAlterRequest, error) {
+func (o *updateTopicConfigOptions) makeRequest() (*v3.TopicConfigBatchAlterRequest, error) {
 	var req v3.TopicConfigBatchAlterRequest
 
 	topicConfigs, err := util.KeyValueDeleteParse("=", "-", o.configs)
 	if err != nil {
-		return nil, fmt.Errorf("could not parse config flags: %s", err.Error())
+		return nil, fmt.Errorf("could not parse config key-value pair: %s", err.Error())
 	}
 	if len(topicConfigs) > 0 {
 		req.Data = make([]v3.TopicConfigBatchAlterData, 0, len(topicConfigs))
