@@ -19,8 +19,8 @@ type getPartitionReplicaOptions struct {
 	brokerID    *int
 }
 
-func newCmdGetPartitionReplica() *cobra.Command {
-	o := getPartitionReplicaOptions{}
+func newCmdGetPartitionReplica(c *cli.CLI) *cobra.Command {
+	o := getPartitionReplicaOptions{cli: c}
 
 	cmd := &cobra.Command{
 		Use:     "partition-replica TOPIC_NAME [PARTITION_ID] [BROKER_ID]",
@@ -45,16 +45,14 @@ func newCmdGetPartitionReplica() *cobra.Command {
 }
 
 func (o *getPartitionReplicaOptions) setup(cmd *cobra.Command, args []string) error {
-	cli, err := cli.New(cmd, args)
-	if err != nil {
+	if err := o.cli.Init(cmd, args); err != nil {
 		return err
 	}
-	o.cli = cli
 
 	o.topic = args[0]
 	if len(args) > 1 {
 		var partitionID int
-		partitionID, err = strconv.Atoi(args[1])
+		partitionID, err := strconv.Atoi(args[1])
 		if err != nil {
 			return fmt.Errorf("invalid partition id: %s", err.Error())
 		}
@@ -62,7 +60,7 @@ func (o *getPartitionReplicaOptions) setup(cmd *cobra.Command, args []string) er
 	}
 	if len(args) == 3 {
 		var brokerID int
-		brokerID, err = strconv.Atoi(args[2])
+		brokerID, err := strconv.Atoi(args[2])
 		if err != nil {
 			return fmt.Errorf("invalid broker id: %s", err.Error())
 		}

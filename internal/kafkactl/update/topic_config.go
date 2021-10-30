@@ -20,8 +20,8 @@ type updateTopicConfiOptions struct {
 	request *v3.TopicConfigBatchAlterRequest
 }
 
-func newCmdUpdateTopicConfig() *cobra.Command {
-	o := updateTopicConfiOptions{}
+func newCmdUpdateTopicConfig(c *cli.CLI) *cobra.Command {
+	o := updateTopicConfiOptions{cli: c}
 
 	cmd := &cobra.Command{
 		Use:     "topic-config TOPIC_NAME KEYVALUE_PAIR [KEYVALUE_PAIR..]",
@@ -46,11 +46,9 @@ func newCmdUpdateTopicConfig() *cobra.Command {
 }
 
 func (o *updateTopicConfiOptions) setup(cmd *cobra.Command, args []string) error {
-	cli, err := cli.New(cmd, args)
-	if err != nil {
+	if err := o.cli.Init(cmd, args); err != nil {
 		return err
 	}
-	o.cli = cli
 
 	o.topic = args[0]
 	o.configs = args[1:]

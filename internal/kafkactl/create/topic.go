@@ -21,8 +21,8 @@ type createTopicOptions struct {
 	request *v3.TopicCreateRequest
 }
 
-func newCmdCreateTopic() *cobra.Command {
-	o := createTopicOptions{}
+func newCmdCreateTopic(c *cli.CLI) *cobra.Command {
+	o := createTopicOptions{cli: c}
 
 	cmd := &cobra.Command{
 		Use:     "topic TOPIC_NAME",
@@ -51,11 +51,9 @@ func newCmdCreateTopic() *cobra.Command {
 }
 
 func (o *createTopicOptions) setup(cmd *cobra.Command, args []string) error {
-	cli, err := cli.New(cmd, args)
-	if err != nil {
+	if err := o.cli.Init(cmd, args); err != nil {
 		return err
 	}
-	o.cli = cli
 
 	req, err := o.makeRequest(args[0])
 	if err != nil {

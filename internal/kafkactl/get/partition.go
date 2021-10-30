@@ -18,8 +18,8 @@ type getPartitionOptions struct {
 	partitionID *int
 }
 
-func newCmdGetPartition() *cobra.Command {
-	o := getPartitionOptions{}
+func newCmdGetPartition(c *cli.CLI) *cobra.Command {
+	o := getPartitionOptions{cli: c}
 
 	cmd := &cobra.Command{
 		Use:     "partition TOPIC_NAME [PARTITION_ID]",
@@ -44,17 +44,15 @@ func newCmdGetPartition() *cobra.Command {
 }
 
 func (o *getPartitionOptions) setup(cmd *cobra.Command, args []string) error {
-	cli, err := cli.New(cmd, args)
-	if err != nil {
+	if err := o.cli.Init(cmd, args); err != nil {
 		return err
 	}
-	o.cli = cli
 
 	o.topic = args[0]
 
 	if len(args) == 2 {
 		var partitionID int
-		partitionID, err = strconv.Atoi(args[1])
+		partitionID, err := strconv.Atoi(args[1])
 		if err != nil {
 			return fmt.Errorf("invalid partition id: %s", err.Error())
 		}

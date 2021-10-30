@@ -16,8 +16,8 @@ type getTopicConfigOptions struct {
 	configName string
 }
 
-func newCmdGetTopicConfig() *cobra.Command {
-	o := getTopicConfigOptions{}
+func newCmdGetTopicConfig(c *cli.CLI) *cobra.Command {
+	o := getTopicConfigOptions{cli: c}
 
 	cmd := &cobra.Command{
 		Use:     "topic-config TOPIC_NAME [CONFIG_NAME]",
@@ -42,11 +42,9 @@ func newCmdGetTopicConfig() *cobra.Command {
 }
 
 func (o *getTopicConfigOptions) setup(cmd *cobra.Command, args []string) error {
-	cli, err := cli.New(cmd, args)
-	if err != nil {
+	if err := o.cli.Init(cmd, args); err != nil {
 		return err
 	}
-	o.cli = cli
 
 	o.topic = args[0]
 

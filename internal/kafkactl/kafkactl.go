@@ -6,7 +6,7 @@ import (
 
 	configCmd "github.com/devodev/kafkactl/internal/kafkactl/config"
 	createCmd "github.com/devodev/kafkactl/internal/kafkactl/create"
-	getcmd "github.com/devodev/kafkactl/internal/kafkactl/get"
+	getCmd "github.com/devodev/kafkactl/internal/kafkactl/get"
 	updateCmd "github.com/devodev/kafkactl/internal/kafkactl/update"
 
 	log "github.com/sirupsen/logrus"
@@ -32,14 +32,17 @@ func newRootCmd() *cobra.Command {
 	}
 
 	cmd.PersistentPreRunE = initLogger
-
 	cmd.PersistentFlags().StringP("log-level", "v", log.WarnLevel.String(), "Log level (debug, info, warn, error, fatal, panic)")
 
+	getCmd := getCmd.New()
+	createCmd := createCmd.New()
+	updateCmd := updateCmd.New()
+
 	cmd.AddCommand(configCmd.New())
-	cmd.AddCommand(createCmd.New())
-	cmd.AddCommand(getcmd.New())
+	cmd.AddCommand(createCmd)
+	cmd.AddCommand(getCmd)
 	cmd.AddCommand(newVersionCmd())
-	cmd.AddCommand(updateCmd.New())
+	cmd.AddCommand(updateCmd)
 
 	return cmd
 }

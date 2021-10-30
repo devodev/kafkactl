@@ -15,8 +15,8 @@ type getTopicOptions struct {
 	topic string
 }
 
-func newCmdGetTopic() *cobra.Command {
-	o := getTopicOptions{}
+func newCmdGetTopic(c *cli.CLI) *cobra.Command {
+	o := getTopicOptions{cli: c}
 
 	cmd := &cobra.Command{
 		Use:     "topic [TOPIC_NAME]",
@@ -41,11 +41,9 @@ func newCmdGetTopic() *cobra.Command {
 }
 
 func (o *getTopicOptions) setup(cmd *cobra.Command, args []string) error {
-	cli, err := cli.New(cmd, args)
-	if err != nil {
+	if err := o.cli.Init(cmd, args); err != nil {
 		return err
 	}
-	o.cli = cli
 
 	if len(args) == 1 {
 		o.topic = args[0]

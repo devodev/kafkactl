@@ -16,8 +16,8 @@ type getConsumerAssignmentOptions struct {
 	consumerID string
 }
 
-func newCmdGetConsumerAssignment() *cobra.Command {
-	o := getConsumerAssignmentOptions{}
+func newCmdGetConsumerAssignment(c *cli.CLI) *cobra.Command {
+	o := getConsumerAssignmentOptions{cli: c}
 
 	cmd := &cobra.Command{
 		Use:     "consumer-assignment GROUP_ID CONSUMER_ID",
@@ -42,11 +42,9 @@ func newCmdGetConsumerAssignment() *cobra.Command {
 }
 
 func (o *getConsumerAssignmentOptions) setup(cmd *cobra.Command, args []string) error {
-	cli, err := cli.New(cmd, args)
-	if err != nil {
+	if err := o.cli.Init(cmd, args); err != nil {
 		return err
 	}
-	o.cli = cli
 
 	o.groupID = args[0]
 	o.consumerID = args[1]

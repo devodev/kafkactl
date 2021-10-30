@@ -18,8 +18,8 @@ type getBrokerConfigOptions struct {
 	configName string
 }
 
-func newCmdGetBrokerConfig() *cobra.Command {
-	o := getBrokerConfigOptions{}
+func newCmdGetBrokerConfig(c *cli.CLI) *cobra.Command {
+	o := getBrokerConfigOptions{cli: c}
 
 	cmd := &cobra.Command{
 		Use:     "broker-config [BROKER_ID]",
@@ -44,15 +44,13 @@ func newCmdGetBrokerConfig() *cobra.Command {
 }
 
 func (o *getBrokerConfigOptions) setup(cmd *cobra.Command, args []string) error {
-	cli, err := cli.New(cmd, args)
-	if err != nil {
+	if err := o.cli.Init(cmd, args); err != nil {
 		return err
 	}
-	o.cli = cli
 
 	if len(args) == 1 {
 		var brokerID int
-		brokerID, err = strconv.Atoi(args[0])
+		brokerID, err := strconv.Atoi(args[0])
 		if err != nil {
 			return fmt.Errorf("invalid broker id: %s", err.Error())
 		}

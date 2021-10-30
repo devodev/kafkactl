@@ -18,8 +18,8 @@ type getPartitionReassignmentOptions struct {
 	partitionID *int
 }
 
-func newCmdGetPartitionReassignment() *cobra.Command {
-	o := getPartitionReassignmentOptions{}
+func newCmdGetPartitionReassignment(c *cli.CLI) *cobra.Command {
+	o := getPartitionReassignmentOptions{cli: c}
 
 	cmd := &cobra.Command{
 		Use:     "partition-reassignment [TOPIC_NAME] [PARTITION_ID]",
@@ -44,18 +44,16 @@ func newCmdGetPartitionReassignment() *cobra.Command {
 }
 
 func (o *getPartitionReassignmentOptions) setup(cmd *cobra.Command, args []string) error {
-	cli, err := cli.New(cmd, args)
-	if err != nil {
+	if err := o.cli.Init(cmd, args); err != nil {
 		return err
 	}
-	o.cli = cli
 
 	if len(args) > 0 {
 		o.topic = args[0]
 	}
 	if len(args) == 2 {
 		var partitionID int
-		partitionID, err = strconv.Atoi(args[1])
+		partitionID, err := strconv.Atoi(args[1])
 		if err != nil {
 			return fmt.Errorf("invalid partition id: %s", err.Error())
 		}

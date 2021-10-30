@@ -22,8 +22,8 @@ type getAclOptions struct {
 	permission   string
 }
 
-func newCmdGetAcl() *cobra.Command {
-	o := getAclOptions{}
+func newCmdGetAcl(c *cli.CLI) *cobra.Command {
+	o := getAclOptions{cli: c}
 
 	cmd := &cobra.Command{
 		Use:     "acl",
@@ -56,11 +56,9 @@ func newCmdGetAcl() *cobra.Command {
 }
 
 func (o *getAclOptions) setup(cmd *cobra.Command, args []string) error {
-	cli, err := cli.New(cmd, args)
-	if err != nil {
+	if err := o.cli.Init(cmd, args); err != nil {
 		return err
 	}
-	o.cli = cli
 
 	return nil
 }

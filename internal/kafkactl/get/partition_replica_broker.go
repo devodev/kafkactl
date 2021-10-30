@@ -17,8 +17,8 @@ type getPartitionReplicaBrokerOptions struct {
 	brokerID *int
 }
 
-func newCmdGetPartitionReplicaBroker() *cobra.Command {
-	o := getPartitionReplicaBrokerOptions{}
+func newCmdGetPartitionReplicaBroker(c *cli.CLI) *cobra.Command {
+	o := getPartitionReplicaBrokerOptions{cli: c}
 
 	cmd := &cobra.Command{
 		Use:     "partition-replica-broker [BROKER_ID]",
@@ -43,15 +43,13 @@ func newCmdGetPartitionReplicaBroker() *cobra.Command {
 }
 
 func (o *getPartitionReplicaBrokerOptions) setup(cmd *cobra.Command, args []string) error {
-	cli, err := cli.New(cmd, args)
-	if err != nil {
+	if err := o.cli.Init(cmd, args); err != nil {
 		return err
 	}
-	o.cli = cli
 
 	if len(args) == 1 {
 		var brokerID int
-		brokerID, err = strconv.Atoi(args[1])
+		brokerID, err := strconv.Atoi(args[1])
 		if err != nil {
 			return fmt.Errorf("invalid broker id: %s", err.Error())
 		}

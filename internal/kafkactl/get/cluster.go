@@ -15,8 +15,8 @@ type getClusterOptions struct {
 	clusterID string
 }
 
-func newCmdGetCluster() *cobra.Command {
-	o := getClusterOptions{}
+func newCmdGetCluster(c *cli.CLI) *cobra.Command {
+	o := getClusterOptions{cli: c}
 
 	cmd := &cobra.Command{
 		Use:     "cluster [CLUSTER_ID]",
@@ -41,11 +41,9 @@ func newCmdGetCluster() *cobra.Command {
 }
 
 func (o *getClusterOptions) setup(cmd *cobra.Command, args []string) error {
-	cli, err := cli.New(cmd, args, cli.WithIgnoreClusterIDUnset())
-	if err != nil {
+	if err := o.cli.Init(cmd, args, cli.WithIgnoreClusterIDUnset()); err != nil {
 		return err
 	}
-	o.cli = cli
 
 	if len(args) == 1 {
 		o.clusterID = args[0]

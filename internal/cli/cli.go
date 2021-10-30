@@ -10,32 +10,56 @@ import (
 	"github.com/devodev/kafkactl/internal/kafkactl/util"
 	"github.com/devodev/kafkactl/internal/serializers"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
-type CLIOption func(c *CLI) error
+type cliOption func(c *CLI) error
+
+func WithIgnoreClusterIDUnset() cliOption {
+	return func(c *CLI) error {
+		c.ignoreClusterIDUnset = true
+		return nil
+	}
+}
 
 type CLI struct {
+	flagset *pflag.FlagSet
+
 	ignoreClusterIDUnset bool
 
-	Context *config.Context
-
+	Context    *config.Context
 	Client     *kafkaclient.KafkaRest
 	Serializer serializers.Serializer
 }
 
-func New(cmd *cobra.Command, args []string, opts ...CLIOption) (*CLI, error) {
+func New() *CLI {
+	flagset := pflag.NewFlagSet("", pflag.ContinueOnError)
+	flagset.StringP("output", "o", "table", "How to format the output (table, json)")
+	flagset.StringP("config-file", "f", "", "Configuration file path")
+	flagset.StringArrayP("header", "H", []string{}, "Additional HTTP header(s)")
+
+	return &CLI{
+		flagset: flagset,
+	}
+}
+
+func (c *CLI) Flags() *pflag.FlagSet {
+	return c.flagset
+}
+
+func (c *CLI) Init(cmd *cobra.Command, args []string, opts ...cliOption) error {
 	// parse flags
-	output, err := cmd.Flags().GetString("output")
+	output, err := c.flagset.GetString("output")
 	if err != nil {
-		return nil, err
+		return err
 	}
-	cfgFilename, err := cmd.Flags().GetString("config-file")
+	cfgFilename, err := c.flagset.GetString("config-file")
 	if err != nil {
-		return nil, err
+		return err
 	}
-	headers, err := cmd.Flags().GetStringArray("header")
+	headers, err := c.flagset.GetStringArray("header")
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// resolve default config filepath
@@ -43,7 +67,7 @@ func New(cmd *cobra.Command, args []string, opts ...CLIOption) (*CLI, error) {
 		var home string
 		home, err = os.UserHomeDir()
 		if err != nil {
-			return nil, err
+			return err
 		}
 		cfgFilename = filepath.Join(home, ".kafkactl.yaml")
 	}
@@ -52,52 +76,50 @@ func New(cmd *cobra.Command, args []string, opts ...CLIOption) (*CLI, error) {
 	var cfg *config.Config
 	cfg, err = config.LoadFromFile(cfgFilename)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// load context
 	ctx, err := cfg.GetCurrentContext()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if ctx.BaseURL == "" {
-		return nil, fmt.Errorf("baseURL not set in current context")
+		return fmt.Errorf("baseURL not set in current context")
 	}
 
 	// parse headers
 	headerMap, err := util.KeyValueParse("=", headers)
 	if err != nil {
-		return nil, fmt.Errorf("could not parse headers: %s", err)
+		return fmt.Errorf("could not parse headers: %s", err)
 	}
 
 	// create Kafka Rest client
 	client, err := kafkaclient.New(ctx.BaseURL, kafkaclient.WithHeaders(headerMap))
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// create response serializer
 	ser, err := serializers.NewSerializer(output)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// create cli instance
-	c := &CLI{
-		Context:    ctx,
-		Client:     client,
-		Serializer: ser,
-	}
+	c.Context = ctx
+	c.Client = client
+	c.Serializer = ser
 
 	// apply options
 	for _, opt := range opts {
 		if err := opt(c); err != nil {
-			return nil, err
+			return err
 		}
 	}
 
-	return c, nil
+	return nil
 }
 
 func (c *CLI) Validate() error {
@@ -105,11 +127,4 @@ func (c *CLI) Validate() error {
 		return fmt.Errorf("clusterID not set in current context")
 	}
 	return nil
-}
-
-func WithIgnoreClusterIDUnset() CLIOption {
-	return func(c *CLI) error {
-		c.ignoreClusterIDUnset = true
-		return nil
-	}
 }

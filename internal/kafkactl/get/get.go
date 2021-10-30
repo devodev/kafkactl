@@ -1,6 +1,7 @@
 package get
 
 import (
+	"github.com/devodev/kafkactl/internal/cli"
 	"github.com/spf13/cobra"
 )
 
@@ -13,26 +14,26 @@ func New() *cobra.Command {
 		},
 	}
 
-	cmd.PersistentFlags().StringP("output", "o", "table", "How to format the output (table, json)")
-	cmd.PersistentFlags().StringP("config-file", "f", "", "Configuration file path")
-	cmd.PersistentFlags().StringArrayP("header", "H", []string{}, "Additional HTTP header(s)")
+	c := cli.New()
 
-	cmd.AddCommand(newCmdGetAcl())
-	cmd.AddCommand(newCmdGetBroker())
-	cmd.AddCommand(newCmdGetBrokerConfig())
-	cmd.AddCommand(newCmdGetCluster())
-	cmd.AddCommand(newCmdGetClusterConfig())
-	cmd.AddCommand(newCmdGetConsumer())
-	cmd.AddCommand(newCmdGetConsumerAssignment())
-	cmd.AddCommand(newCmdGetConsumerLag())
-	cmd.AddCommand(newCmdGetConsumerGroup())
-	cmd.AddCommand(newCmdGetConsumerGroupLagSummary())
-	cmd.AddCommand(newCmdGetPartition())
-	cmd.AddCommand(newCmdGetPartitionReassignment())
-	cmd.AddCommand(newCmdGetPartitionReplica())
-	cmd.AddCommand(newCmdGetPartitionReplicaBroker())
-	cmd.AddCommand(newCmdGetTopic())
-	cmd.AddCommand(newCmdGetTopicConfig())
+	cmd.PersistentFlags().AddFlagSet(c.Flags())
+
+	cmd.AddCommand(newCmdGetAcl(c))
+	cmd.AddCommand(newCmdGetBroker(c))
+	cmd.AddCommand(newCmdGetBrokerConfig(c))
+	cmd.AddCommand(newCmdGetCluster(c))
+	cmd.AddCommand(newCmdGetClusterConfig(c))
+	cmd.AddCommand(newCmdGetConsumer(c))
+	cmd.AddCommand(newCmdGetConsumerAssignment(c))
+	cmd.AddCommand(newCmdGetConsumerLag(c))
+	cmd.AddCommand(newCmdGetConsumerGroup(c))
+	cmd.AddCommand(newCmdGetConsumerGroupLagSummary(c))
+	cmd.AddCommand(newCmdGetPartition(c))
+	cmd.AddCommand(newCmdGetPartitionReassignment(c))
+	cmd.AddCommand(newCmdGetPartitionReplica(c))
+	cmd.AddCommand(newCmdGetPartitionReplicaBroker(c))
+	cmd.AddCommand(newCmdGetTopic(c))
+	cmd.AddCommand(newCmdGetTopicConfig(c))
 
 	return cmd
 }

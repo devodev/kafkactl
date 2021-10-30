@@ -15,8 +15,8 @@ type getClusterConfigOptions struct {
 	configName string
 }
 
-func newCmdGetClusterConfig() *cobra.Command {
-	o := getClusterConfigOptions{}
+func newCmdGetClusterConfig(c *cli.CLI) *cobra.Command {
+	o := getClusterConfigOptions{cli: c}
 
 	cmd := &cobra.Command{
 		Use:     "cluster-config [CONFIG_NAME]",
@@ -41,11 +41,9 @@ func newCmdGetClusterConfig() *cobra.Command {
 }
 
 func (o *getClusterConfigOptions) setup(cmd *cobra.Command, args []string) error {
-	cli, err := cli.New(cmd, args)
-	if err != nil {
+	if err := o.cli.Init(cmd, args); err != nil {
 		return err
 	}
-	o.cli = cli
 
 	if len(args) == 1 {
 		o.configName = args[0]

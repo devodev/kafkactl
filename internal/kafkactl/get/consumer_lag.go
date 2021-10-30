@@ -15,8 +15,8 @@ type getConsumerLagOptions struct {
 	groupID string
 }
 
-func newCmdGetConsumerLag() *cobra.Command {
-	o := getConsumerLagOptions{}
+func newCmdGetConsumerLag(c *cli.CLI) *cobra.Command {
+	o := getConsumerLagOptions{cli: c}
 
 	cmd := &cobra.Command{
 		Use:     "consumer-lag GROUP_ID",
@@ -41,11 +41,9 @@ func newCmdGetConsumerLag() *cobra.Command {
 }
 
 func (o *getConsumerLagOptions) setup(cmd *cobra.Command, args []string) error {
-	cli, err := cli.New(cmd, args)
-	if err != nil {
+	if err := o.cli.Init(cmd, args); err != nil {
 		return err
 	}
-	o.cli = cli
 
 	o.groupID = args[0]
 

@@ -1,6 +1,9 @@
 package create
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/devodev/kafkactl/internal/cli"
+	"github.com/spf13/cobra"
+)
 
 func New() *cobra.Command {
 	cmd := &cobra.Command{
@@ -11,11 +14,11 @@ func New() *cobra.Command {
 		},
 	}
 
-	cmd.PersistentFlags().StringP("output", "o", "table", "How to format the output (table, json)")
-	cmd.PersistentFlags().StringP("config-file", "f", "", "Configuration file path")
-	cmd.PersistentFlags().StringArrayP("header", "H", []string{}, "Additional HTTP header(s)")
+	c := cli.New()
 
-	cmd.AddCommand(newCmdCreateTopic())
+	cmd.PersistentFlags().AddFlagSet(c.Flags())
+
+	cmd.AddCommand(newCmdCreateTopic(c))
 
 	return cmd
 }
