@@ -10,6 +10,7 @@ kafkactl get [flags]
 
 ```
   -f, --config-file string   Configuration file path
+  -H, --header stringArray   Additional HTTP header(s)
   -h, --help                 help for get
   -o, --output string        How to format the output (table, json) (default "table")
 ```
