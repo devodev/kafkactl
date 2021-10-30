@@ -31,8 +31,8 @@ make gendoc
 - [ ] Add get broker tasks command
 - [x] Add update command
   - [x] Add update broker-config
+  - [x] Add update cluster-config
   - [x] Add update topic-config
-  - [ ] Add update cluster-config
 - [ ] Add delete command
   - [ ] Add delete acl
   - [ ] Add delete broker

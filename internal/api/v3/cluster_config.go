@@ -1,5 +1,11 @@
 package v3
 
+type ClusterConfigOperation string
+
+var (
+	ClusterConfigDeleteOperation ClusterConfigOperation = "DELETE"
+)
+
 type ClusterConfigData struct {
 	V3BaseData
 	ClusterID   string `json:"cluster_id"`
@@ -24,4 +30,14 @@ type ClusterConfigListResponse struct {
 
 type ClusterConfigGetResponse struct {
 	ClusterConfigData
+}
+
+type ClusterConfigBatchAlterData struct {
+	Name      string                 `json:"name"`
+	Value     string                 `json:"value,omitempty"`
+	Operation ClusterConfigOperation `json:"operation,omitempty"`
+}
+
+type ClusterConfigBatchAlterRequest struct {
+	Data []ClusterConfigBatchAlterData `json:"data"`
 }

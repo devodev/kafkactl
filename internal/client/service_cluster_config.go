@@ -3,14 +3,16 @@ package client
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	v3 "github.com/devodev/kafkactl/internal/api/v3"
 	"github.com/devodev/kafkactl/internal/presentation"
 )
 
 const (
-	clusterConfigListEndpoint = "/v3/clusters/%s/broker-configs"
-	clusterConfigGetEndpoint  = "/v3/clusters/%s/broker-configs/%s"
+	clusterConfigListEndpoint       = "/v3/clusters/%s/broker-configs"
+	clusterConfigGetEndpoint        = "/v3/clusters/%s/broker-configs/%s"
+	clusterConfigBatchAlterEndpoint = "/v3/clusters/%s/broker-configs:alter"
 )
 
 type ServiceClusterConfig service
@@ -43,4 +45,17 @@ func (s *ServiceClusterConfig) GetWide(ctx context.Context, clusterID, configNam
 	}
 	clusterConfig := presentation.MapClusterConfig(&clusterConfigResp.ClusterConfigData)
 	return clusterConfig, nil
+}
+
+func (s *ServiceClusterConfig) BatchAlter(ctx context.Context, clusterID string, payload *v3.ClusterConfigBatchAlterRequest) (string, error) {
+	var statusRetriever StatusRetriever
+	if err := s.client.Post(ctx, fmt.Sprintf(clusterConfigBatchAlterEndpoint, clusterID), payload, nil, statusRetriever.HttpOption); err != nil {
+		return "", err
+	}
+
+	if statusRetriever.Code != http.StatusNoContent {
+		return "", fmt.Errorf(statusRetriever.Status)
+	}
+	response := "Configs updated/reset successfully"
+	return response, nil
 }

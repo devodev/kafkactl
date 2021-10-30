@@ -1,7 +1,9 @@
 package v3
 
+type BrokerConfigOperation string
+
 var (
-	BrokerConfigDeleteOperation string = "DELETE"
+	BrokerConfigDeleteOperation BrokerConfigOperation = "DELETE"
 )
 
 type BrokerConfigData struct {
@@ -31,9 +33,9 @@ type BrokerConfigGetResponse struct {
 }
 
 type BrokerConfigBatchAlterData struct {
-	Name      string `json:"name"`
-	Value     string `json:"value,omitempty"`
-	Operation string `json:"operation,omitempty"`
+	Name      string                `json:"name"`
+	Value     string                `json:"value,omitempty"`
+	Operation BrokerConfigOperation `json:"operation,omitempty"`
 }
 
 type BrokerConfigBatchAlterRequest struct {

@@ -1,7 +1,9 @@
 package v3
 
+type TopicConfigOperation string
+
 var (
-	TopicConfigDeleteOperation string = "DELETE"
+	TopicConfigDeleteOperation TopicConfigOperation = "DELETE"
 )
 
 type TopicConfigData struct {
@@ -31,9 +33,9 @@ type TopicConfigGetResponse struct {
 }
 
 type TopicConfigBatchAlterData struct {
-	Name      string `json:"name"`
-	Value     string `json:"value,omitempty"`
-	Operation string `json:"operation,omitempty"`
+	Name      string               `json:"name"`
+	Value     string               `json:"value,omitempty"`
+	Operation TopicConfigOperation `json:"operation,omitempty"`
 }
 
 type TopicConfigBatchAlterRequest struct {
