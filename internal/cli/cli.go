@@ -7,6 +7,7 @@ import (
 
 	kafkaclient "github.com/devodev/kafkactl/internal/client"
 	"github.com/devodev/kafkactl/internal/config"
+	"github.com/devodev/kafkactl/internal/kafkactl/util"
 	"github.com/devodev/kafkactl/internal/serializers"
 	"github.com/spf13/cobra"
 )
@@ -29,6 +30,10 @@ func New(cmd *cobra.Command, args []string, opts ...CLIOption) (*CLI, error) {
 		return nil, err
 	}
 	cfgFilename, err := cmd.Flags().GetString("config-file")
+	if err != nil {
+		return nil, err
+	}
+	headers, err := cmd.Flags().GetStringArray("header")
 	if err != nil {
 		return nil, err
 	}
@@ -60,8 +65,14 @@ func New(cmd *cobra.Command, args []string, opts ...CLIOption) (*CLI, error) {
 		return nil, fmt.Errorf("baseURL not set in current context")
 	}
 
+	// parse headers
+	headerMap, err := util.KeyValueParse("=", headers)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse headers: %s", err)
+	}
+
 	// create Kafka Rest client
-	client, err := kafkaclient.New(ctx.BaseURL)
+	client, err := kafkaclient.New(ctx.BaseURL, kafkaclient.WithHeaders(headerMap))
 	if err != nil {
 		return nil, err
 	}

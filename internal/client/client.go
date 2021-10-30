@@ -31,10 +31,36 @@ func (s *StatusRetriever) HttpOption(req *http.Request, resp *http.Response) err
 	return nil
 }
 
+type kafkaRestOption func(*KafkaRest) error
+
+func WithHeader(header, value string) kafkaRestOption {
+	return func(c *KafkaRest) error {
+		if _, ok := c.headers[header]; ok {
+			return fmt.Errorf("header '%s' already set", header)
+		}
+		c.headers[header] = value
+		return nil
+	}
+}
+
+func WithHeaders(headers map[string]string) kafkaRestOption {
+	return func(c *KafkaRest) error {
+		for h, v := range headers {
+			if _, ok := c.headers[h]; ok {
+				return fmt.Errorf("header '%s' already set", h)
+			}
+			c.headers[h] = v
+		}
+		return nil
+	}
+}
+
 type KafkaRest struct {
 	client *http.Client
 
 	BaseURL *url.URL
+
+	headers map[string]string
 
 	// inspired by go-github:
 	// https://github.com/google/go-github/blob/d913de9ce1e8ed5550283b448b37b721b61cc3b3/github/github.go#L159
@@ -57,7 +83,7 @@ type KafkaRest struct {
 	TopicConfig           *ServiceTopicConfig
 }
 
-func New(baseURL string) (*KafkaRest, error) {
+func New(baseURL string, opts ...kafkaRestOption) (*KafkaRest, error) {
 	url, err := url.Parse(baseURL)
 	if err != nil {
 		return nil, fmt.Errorf("could not parse base url: %w", err)
@@ -65,6 +91,9 @@ func New(baseURL string) (*KafkaRest, error) {
 
 	client := &KafkaRest{
 		BaseURL: url,
+		headers: map[string]string{
+			"Content-Type": "application/json",
+		},
 		client: &http.Client{
 			Transport: &http.Transport{
 				MaxIdleConns:       10,
@@ -91,6 +120,12 @@ func New(baseURL string) (*KafkaRest, error) {
 	client.Partition = (*ServicePartition)(&client.common)
 	client.Topic = (*ServiceTopic)(&client.common)
 	client.TopicConfig = (*ServiceTopicConfig)(&client.common)
+
+	for _, opt := range opts {
+		if err := opt(client); err != nil {
+			return nil, err
+		}
+	}
 
 	return client, nil
 }
@@ -141,7 +176,10 @@ func (c *KafkaRest) makeRequest(ctx context.Context, method, endpoint string, pa
 	if err != nil {
 		return nil, fmt.Errorf("could not create http request (%s): %w", reqURL, err)
 	}
-	req.Header.Add("Content-Type", "application/json")
+
+	for header, value := range c.headers {
+		req.Header.Add(header, value)
+	}
 
 	req = req.WithContext(ctx)
 

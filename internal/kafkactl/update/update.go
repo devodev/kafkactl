@@ -13,6 +13,7 @@ func New() *cobra.Command {
 
 	cmd.PersistentFlags().StringP("output", "o", "table", "How to format the output (table, json)")
 	cmd.PersistentFlags().StringP("config-file", "f", "", "Configuration file path")
+	cmd.PersistentFlags().StringArrayP("header", "H", []string{}, "Additional HTTP header(s)")
 
 	cmd.AddCommand(newCmdUpdateTopicConfig())
 
