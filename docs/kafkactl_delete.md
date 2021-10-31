@@ -12,7 +12,7 @@ kafkactl delete [flags]
   -f, --config-file string   Configuration file path
   -H, --header stringArray   Additional HTTP header(s)
   -h, --help                 help for delete
-  -o, --output string        How to format the output (table, json) (default "table")
+  -o, --output string        Output format (json,table,template) (default "json")
 ```
 
 ### Options inherited from parent commands
@@ -25,4 +25,5 @@ kafkactl delete [flags]
 
 * [kafkactl](kafkactl.md)	 - kafkactl is a CLI tool for interacting with Kafka through the confluent Kafka Rest Proxy
 * [kafkactl delete acl](kafkactl_delete_acl.md)	 - ACL API
+* [kafkactl delete topic](kafkactl_delete_topic.md)	 - Topic API
 
