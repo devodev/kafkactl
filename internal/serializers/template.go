@@ -1,6 +1,7 @@
 package serializers
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"text/template"
@@ -24,6 +25,20 @@ func (s *TemplateSerializer) Serialize(data interface{}, out io.Writer) error {
 	}
 
 	rootTpl := template.New("root")
+
+	rootTpl.Funcs(template.FuncMap{
+		"tableify": func(data interface{}) (string, error) {
+			ser, err := NewTableSerializer()
+			if err != nil {
+				return "", err
+			}
+			var buffer bytes.Buffer
+			if err := ser.Serialize(data, &buffer); err != nil {
+				return "", err
+			}
+			return buffer.String(), nil
+		},
+	})
 
 	var err error
 	for _, tpl := range tc.Templates {
