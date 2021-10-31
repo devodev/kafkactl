@@ -28,9 +28,6 @@ make gendoc
 
 ## Roadmap
 
-- [ ] Add "Consume records" command
-- [ ] Add "Produce records" command
-- [ ] Add get broker tasks command
 - [x] Add create command
   - [x] Add create acl
 - [x] Add update command
@@ -39,11 +36,14 @@ make gendoc
   - [x] Add update topic-config
 - [x] Add delete command
   - [x] Add delete acl
-  - [ ] Add delete topic
+  - [x] Add delete topic
 - [ ] Add describe command
+  - [x] Add describe topic
   - [ ] Add describe cluster
-  - [ ] Add describe topic
   - [ ] Add describe consumer-group
+- [ ] Add "Consume records" command
+- [ ] Add "Produce records" command
+- [ ] Add get broker tasks command
 
 ## Build
 

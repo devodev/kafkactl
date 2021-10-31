@@ -19,6 +19,19 @@ var (
 			"is_internal":        fmt.Sprintf("%v", data.IsInternal),
 		}
 	}
+	TopicDescribeTemplate = `{{ printf "%-20s %s" "Topic:" .TopicName }}
+{{ printf "%-20s %d" "ReplicationFactor:" .ReplicationFactor }}
+{{ printf "%-20s %d" "PartitionsCount:" .PartitionsCount }}
+{{ printf "%-20s %v" "IsInternal:" .IsInternal }}
+{{- range $idx, $config := .Configs -}}
+{{- $c := printf "%s=%s" $config.Name $config.Value -}}
+{{- if eq $idx 0 }}
+{{ printf "%-20s %s" "Configs:" $c -}}
+{{ else }}
+{{ printf "%-20s %s" "" $c -}}
+{{ end -}}
+{{- end }}
+`
 )
 
 func MapTopic(data *v3.TopicData, pData PartitionList, cData TopicConfigList) *Topic {
