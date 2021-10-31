@@ -19,10 +19,15 @@ var (
 			"is_internal":        fmt.Sprintf("%v", data.IsInternal),
 		}
 	}
-	TopicDescribeTemplate = `{{ printf "%-20s %s" "Topic:" .TopicName }}
+	TopicDescribeTemplate = `
+{{- $partitionsTable := tableify .Partitions  -}}
+{{- printf "%-20s %s" "Topic:" .TopicName }}
 {{ printf "%-20s %d" "ReplicationFactor:" .ReplicationFactor }}
 {{ printf "%-20s %d" "PartitionsCount:" .PartitionsCount }}
 {{ printf "%-20s %v" "IsInternal:" .IsInternal }}
+{{- if eq (len .Configs) 0 }}
+{{ printf "%-20s -" "Configs:" -}}
+{{- end }}
 {{- range $idx, $config := .Configs -}}
 {{- $c := printf "%s=%s" $config.Name $config.Value -}}
 {{- if eq $idx 0 }}
@@ -31,6 +36,8 @@ var (
 {{ printf "%-20s %s" "" $c -}}
 {{ end -}}
 {{- end }}
+{{ printf "%-20s" "Partitions:" }}
+{{ $partitionsTable -}}
 `
 )
 
@@ -53,6 +60,7 @@ func MapTopic(data *v3.TopicData, pData PartitionList, cData TopicConfigList) *T
 		TopicName:         data.TopicName,
 		ReplicationFactor: data.ReplicationFactor,
 		PartitionsCount:   partitionsCount,
+		Partitions:        pData,
 		Configs:           configs,
 		IsInternal:        data.IsInternal,
 	}
@@ -62,6 +70,7 @@ type Topic struct {
 	TopicName         string             `json:"topic_name"`
 	ReplicationFactor int                `json:"replication_factor"`
 	PartitionsCount   int                `json:"partitions_count"`
+	Partitions        PartitionList      `json:"partitions"`
 	Configs           []TopicConfigShort `json:"configs"`
 	IsInternal        bool               `json:"is_internal"`
 }

@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	partitionHeader        = []string{"topic_name", "partition_id", "leader_broker", "replicas", "isr"}
+	partitionHeader        = []string{"partition_id", "leader_broker", "replicas", "isr"}
 	partitionHeaderDataMap = func(data Partition) map[string]string {
 		leader := ""
 		if data.LeaderBroker != 0 {
