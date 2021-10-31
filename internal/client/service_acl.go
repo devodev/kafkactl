@@ -31,14 +31,17 @@ func (s *ServiceAcl) Delete(ctx context.Context, clusterID string, queryParams *
 	return response, nil
 }
 
-func (s *ServiceAcl) List(ctx context.Context, clusterID string, queryParams *v3.AclQueryParams, resp *v3.AclListResponse) error {
+func (s *ServiceAcl) List(ctx context.Context, clusterID string, queryParams *v3.AclParams, resp *v3.AclListResponse) error {
 	endpoint := fmt.Sprintf(aclEndpoint, clusterID)
-	params := queryParams.Encode()
+	params, err := queryParams.Encode()
+	if err != nil {
+		return err
+	}
 
 	return s.client.GetWithParams(ctx, endpoint, params, resp)
 }
 
-func (s *ServiceAcl) ListWide(ctx context.Context, clusterID string, queryParams *v3.AclQueryParams) (presentation.AclList, error) {
+func (s *ServiceAcl) ListWide(ctx context.Context, clusterID string, queryParams *v3.AclParams) (presentation.AclList, error) {
 	var aclResp v3.AclListResponse
 	if err := s.List(ctx, clusterID, queryParams, &aclResp); err != nil {
 		return nil, err

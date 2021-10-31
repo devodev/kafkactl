@@ -13,11 +13,11 @@ import (
 type getAclOptions struct {
 	cli *cli.CLI
 
-	queryParams *v3.AclQueryParams
+	queryParams *v3.AclParams
 }
 
 func newCmdGetAcl(c *cli.CLI) *cobra.Command {
-	o := getAclOptions{cli: c, queryParams: &v3.AclQueryParams{}}
+	o := getAclOptions{cli: c, queryParams: &v3.AclParams{}}
 
 	cmd := &cobra.Command{
 		Use:     "acl",

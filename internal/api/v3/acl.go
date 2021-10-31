@@ -1,9 +1,10 @@
 package v3
 
-import "net/url"
+import (
+	"fmt"
+	"net/url"
+)
 
-// TODO: use the following enums to validate params
-// TODO: implement json interfaces and validate value
 type AclOperation string
 
 const (
@@ -22,6 +23,33 @@ const (
 	OperationIdempotentWrite AclOperation = "IDEMPOTENT_WRITE"
 )
 
+var (
+	AclOperationDefault = OperationAny
+	AclOperationMap     = map[string]AclOperation{
+		"UNKNOWN":          OperationUnknown,
+		"ANY":              OperationAny,
+		"ALL":              OperationAll,
+		"READ":             OperationRead,
+		"WRITE":            OperationWrite,
+		"CREATE":           OperationCreate,
+		"DELETE":           OperationDelete,
+		"ALTER":            OperationAlter,
+		"DESCRIBE":         OperationDescribe,
+		"CLUSTER_ACTION":   OperationClusterAction,
+		"DESCRIBE_CONFIGS": OperationDescribeConfigs,
+		"ALTER_CONFIGS":    OperationAlterConfigs,
+		"IDEMPOTENT_WRITE": OperationIdempotentWrite,
+	}
+)
+
+func AclOperationFrom(s string) (AclOperation, error) {
+	val, ok := AclOperationMap[s]
+	if !ok {
+		return "", fmt.Errorf("invalid operation: %s", s)
+	}
+	return val, nil
+}
+
 type AclPatternType string
 
 const (
@@ -32,6 +60,25 @@ const (
 	PatternTypePrefixed AclPatternType = "PREFIXED"
 )
 
+var (
+	AclPatternTypeDefault = PatternTypeLiteral
+	AclPatternTypeMap     = map[string]AclPatternType{
+		"UNKNOWN":  PatternTypeUnknown,
+		"ANY":      PatternTypeAny,
+		"MATCH":    PatternTypeMatch,
+		"LITERAL":  PatternTypeLiteral,
+		"PREFIXED": PatternTypePrefixed,
+	}
+)
+
+func AclPatternTypeFrom(s string) (AclPatternType, error) {
+	val, ok := AclPatternTypeMap[s]
+	if !ok {
+		return "", fmt.Errorf("invalid pattern type: %s", s)
+	}
+	return val, nil
+}
+
 type AclPermission string
 
 const (
@@ -40,6 +87,24 @@ const (
 	PermissionDeny    AclPermission = "DENY"
 	PermissionAllow   AclPermission = "ALLOW"
 )
+
+var (
+	AclPermissionDefault = PermissionAny
+	AclPermissionMap     = map[string]AclPermission{
+		"UNKNOWN": PermissionUnknown,
+		"ANY":     PermissionAny,
+		"DENY":    PermissionDeny,
+		"ALLOW":   PermissionAllow,
+	}
+)
+
+func AclPermissionFrom(s string) (AclPermission, error) {
+	val, ok := AclPermissionMap[s]
+	if !ok {
+		return "", fmt.Errorf("invalid permission: %s", s)
+	}
+	return val, nil
+}
 
 type AclResourceType string
 
@@ -53,9 +118,28 @@ const (
 	ResourceTypeDelegationToken AclResourceType = "DELEGATION_TOKEN"
 )
 
-type AclData struct {
-	V3BaseData
-	ClusterID    string          `json:"cluster_id"`
+var (
+	AclResourceTypeDefault = ResourceTypeAny
+	AclResourceTypeMap     = map[string]AclResourceType{
+		"UNKNOWN":          ResourceTypeUnknown,
+		"ANY":              ResourceTypeAny,
+		"TOPIC":            ResourceTypeTopic,
+		"GROUP":            ResourceTypeGroup,
+		"CLUSTER":          ResourceTypeCluster,
+		"TRANSACTIONAL_ID": ResourceTypeTransactionalID,
+		"DELEGATION_TOKEN": ResourceTypeDelegationToken,
+	}
+)
+
+func AclResourceTypeFrom(s string) (AclResourceType, error) {
+	val, ok := AclResourceTypeMap[s]
+	if !ok {
+		return "", fmt.Errorf("invalid resource type: %s", s)
+	}
+	return val, nil
+}
+
+type AclBaseData struct {
 	ResourceType AclResourceType `json:"resource_type"`
 	ResourceName string          `json:"resource_name"`
 	PatternType  AclPatternType  `json:"pattern_type"`
@@ -65,12 +149,20 @@ type AclData struct {
 	Permission   AclPermission   `json:"permission"`
 }
 
+type AclData struct {
+	V3BaseData
+	AclBaseData
+	ClusterID string `json:"cluster_id"`
+}
+
 type AclListResponse struct {
 	V3Base
 	Data []AclData `json:"data"`
 }
 
-type AclQueryParams struct {
+type AclCreateRequest AclBaseData
+
+type AclParams struct {
 	ResourceType string
 	ResourceName string
 	PatternType  string
@@ -80,28 +172,83 @@ type AclQueryParams struct {
 	Permission   string
 }
 
-func (q AclQueryParams) Encode() url.Values {
-	queryParams := url.Values{}
-	if q.ResourceType != "" {
-		queryParams.Add("resource_type", q.ResourceType)
+func (q AclParams) Request() (*AclCreateRequest, error) {
+	req := &AclCreateRequest{
+		Operation:    AclOperationDefault,
+		PatternType:  AclPatternTypeDefault,
+		Permission:   AclPermissionDefault,
+		ResourceType: AclResourceTypeDefault,
+		ResourceName: q.ResourceName,
+		Principal:    q.Principal,
+		Host:         q.Host,
 	}
-	if q.ResourceName != "" {
-		queryParams.Add("resource_name", q.ResourceName)
+
+	var err error
+	if q.Operation != "" {
+		req.Operation, err = AclOperationFrom(q.Operation)
+		if err != nil {
+			return nil, err
+		}
 	}
 	if q.PatternType != "" {
-		queryParams.Add("pattern_type", q.PatternType)
-	}
-	if q.Principal != "" {
-		queryParams.Add("principal", q.Principal)
-	}
-	if q.Host != "" {
-		queryParams.Add("host", q.Host)
-	}
-	if q.Operation != "" {
-		queryParams.Add("operation", q.Operation)
+		req.PatternType, err = AclPatternTypeFrom(q.PatternType)
+		if err != nil {
+			return nil, err
+		}
 	}
 	if q.Permission != "" {
-		queryParams.Add("permission", q.Permission)
+		req.Permission, err = AclPermissionFrom(q.Permission)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return queryParams
+	if q.ResourceType != "" {
+		req.ResourceType, err = AclResourceTypeFrom(q.ResourceType)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return req, nil
+}
+
+func (q AclParams) Encode() (url.Values, error) {
+	queryParams := url.Values{}
+
+	if q.Operation != "" {
+		if _, err := AclOperationFrom(q.Operation); err != nil {
+			return nil, err
+		}
+		queryParams.Set("operation", q.Operation)
+	}
+	if q.PatternType != "" {
+		if _, err := AclPatternTypeFrom(q.PatternType); err != nil {
+			return nil, err
+		}
+		queryParams.Set("pattern_type", q.PatternType)
+	}
+	if q.Permission != "" {
+		if _, err := AclPermissionFrom(q.Permission); err != nil {
+			return nil, err
+		}
+		queryParams.Set("permission", q.Permission)
+	}
+	if q.ResourceType != "" {
+		if _, err := AclResourceTypeFrom(q.ResourceType); err != nil {
+			return nil, err
+		}
+		queryParams.Set("resource_type", q.ResourceType)
+	}
+
+	if q.ResourceName != "" {
+		queryParams.Set("resource_name", q.ResourceName)
+	}
+	if q.Principal != "" {
+		queryParams.Set("principal", q.Principal)
+	}
+	if q.Host != "" {
+		queryParams.Set("host", q.Host)
+	}
+
+	return queryParams, nil
 }

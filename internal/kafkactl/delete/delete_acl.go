@@ -14,11 +14,11 @@ import (
 type deleteAclOptions struct {
 	cli *cli.CLI
 
-	queryParams *v3.AclQueryParams
+	queryParams *v3.AclParams
 }
 
 func newCmdDeleteAcl(c *cli.CLI) *cobra.Command {
-	o := deleteAclOptions{cli: c, queryParams: &v3.AclQueryParams{}}
+	o := deleteAclOptions{cli: c, queryParams: &v3.AclParams{}}
 
 	cmd := &cobra.Command{
 		Use:     "acl",
