@@ -15,9 +15,27 @@ const (
 
 type ServiceAcl service
 
-func (s *ServiceAcl) Delete(ctx context.Context, clusterID string, queryParams *v3.AclQueryParams) (string, error) {
+func (s *ServiceAcl) Create(ctx context.Context, clusterID string, req *v3.AclCreateRequest) (string, error) {
 	endpoint := fmt.Sprintf(aclEndpoint, clusterID)
-	params := queryParams.Encode()
+
+	var statusRetriever StatusRetriever
+	// TODO: retrieve and display list of deleted acls
+	if err := s.client.Post(ctx, endpoint, req, nil, statusRetriever.HttpOption); err != nil {
+		return "", err
+	}
+	if statusRetriever.Code != http.StatusCreated {
+		return "", fmt.Errorf(statusRetriever.Status)
+	}
+	response := "ACL(s) created successfully"
+	return response, nil
+}
+
+func (s *ServiceAcl) Delete(ctx context.Context, clusterID string, queryParams *v3.AclParams) (string, error) {
+	endpoint := fmt.Sprintf(aclEndpoint, clusterID)
+	params, err := queryParams.Encode()
+	if err != nil {
+		return "", err
+	}
 
 	var statusRetriever StatusRetriever
 	// TODO: retrieve and display list of deleted acls

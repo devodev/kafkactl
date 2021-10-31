@@ -18,6 +18,7 @@ func New() *cobra.Command {
 
 	cmd.PersistentFlags().AddFlagSet(c.Flags())
 
+	cmd.AddCommand(newCmdCreateAcl(c))
 	cmd.AddCommand(newCmdCreateTopic(c))
 
 	return cmd
