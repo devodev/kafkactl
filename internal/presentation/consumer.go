@@ -16,20 +16,22 @@ var (
 	}
 )
 
-func MapConsumer(data *v3.ConsumerData) *Consumer {
+func MapConsumer(data *v3.ConsumerData, assignments ConsumerAssignmentList) *Consumer {
 	return &Consumer{
 		ConsumerGroupID: data.ConsumerGroupID,
 		ConsumerID:      data.ConsumerID,
 		ClientID:        data.ClientID,
 		InstanceID:      data.InstanceID,
+		Assignments:     assignments,
 	}
 }
 
 type Consumer struct {
-	ConsumerGroupID string `json:"consumer_group_id"`
-	ConsumerID      string `json:"consumer_id"`
-	ClientID        string `json:"client_id"`
-	InstanceID      string `json:"instance_id"`
+	ConsumerGroupID string                 `json:"consumer_group_id"`
+	ConsumerID      string                 `json:"consumer_id"`
+	ClientID        string                 `json:"client_id"`
+	InstanceID      string                 `json:"instance_id"`
+	Assignments     ConsumerAssignmentList `json:"assignments"`
 }
 
 func (t Consumer) TableHeader() []string {

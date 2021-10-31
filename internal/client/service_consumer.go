@@ -26,7 +26,11 @@ func (s *ServiceConsumer) ListWide(ctx context.Context, clusterID, groupID strin
 	}
 	consumers := make(presentation.ConsumerList, 0, len(consumersResp.Data))
 	for _, cgData := range consumersResp.Data {
-		cg := presentation.MapConsumer(&cgData)
+		assignments, err := s.client.ConsumerAssignment.ListWide(ctx, clusterID, cgData.ConsumerGroupID, cgData.ConsumerID)
+		if err != nil {
+			return nil, err
+		}
+		cg := presentation.MapConsumer(&cgData, assignments)
 		consumers = append(consumers, *cg)
 	}
 	return consumers, nil
@@ -41,6 +45,10 @@ func (s *ServiceConsumer) GetWide(ctx context.Context, clusterID, groupID, consu
 	if err := s.Get(ctx, clusterID, groupID, consumerID, &consumerResp); err != nil {
 		return nil, err
 	}
-	consumer := presentation.MapConsumer(&consumerResp.ConsumerData)
+	assignments, err := s.client.ConsumerAssignment.ListWide(ctx, clusterID, consumerResp.ConsumerGroupID, consumerResp.ConsumerID)
+	if err != nil {
+		return nil, err
+	}
+	consumer := presentation.MapConsumer(&consumerResp.ConsumerData, assignments)
 	return consumer, nil
 }
