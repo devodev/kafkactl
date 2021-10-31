@@ -24,13 +24,13 @@ var (
 func MapAcl(data *v3.AclData) *Acl {
 	return &Acl{
 		ClusterID:    data.ClusterID,
-		ResourceType: data.ResourceType,
+		ResourceType: string(data.ResourceType),
 		ResourceName: data.ResourceName,
-		PatternType:  data.PatternType,
+		PatternType:  string(data.PatternType),
 		Principal:    data.Principal,
 		Host:         data.Host,
-		Operation:    data.Operation,
-		Permission:   data.Permission,
+		Operation:    string(data.Operation),
+		Permission:   string(data.Permission),
 	}
 }
 
