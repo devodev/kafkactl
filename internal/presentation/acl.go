@@ -7,16 +7,16 @@ import (
 )
 
 var (
-	aclHeader        = []string{"resource_type", "resource_name", "pattern_type", "principal", "host", "operation", "permission"}
+	aclHeader        = []string{"principal", "host", "pattern_type", "resource_type", "resource_name", "permission", "operation"}
 	aclHeaderDataMap = func(data Acl) map[string]string {
 		return map[string]string{
-			"resource_type": data.ResourceType,
-			"resource_name": data.ResourceName,
-			"pattern_type":  data.PatternType,
 			"principal":     data.Principal,
 			"host":          data.Host,
-			"operation":     data.Operation,
+			"pattern_type":  data.PatternType,
+			"resource_type": data.ResourceType,
+			"resource_name": data.ResourceName,
 			"permission":    data.Permission,
+			"operation":     data.Operation,
 		}
 	}
 )
@@ -24,25 +24,25 @@ var (
 func MapAcl(data *v3.AclData) *Acl {
 	return &Acl{
 		ClusterID:    data.ClusterID,
-		ResourceType: string(data.ResourceType),
-		ResourceName: data.ResourceName,
-		PatternType:  string(data.PatternType),
 		Principal:    data.Principal,
 		Host:         data.Host,
-		Operation:    string(data.Operation),
+		ResourceType: string(data.ResourceType),
+		PatternType:  string(data.PatternType),
+		ResourceName: data.ResourceName,
 		Permission:   string(data.Permission),
+		Operation:    string(data.Operation),
 	}
 }
 
 type Acl struct {
 	ClusterID    string `json:"cluster_id"`
-	ResourceType string `json:"resource_type"`
-	ResourceName string `json:"resource_name"`
-	PatternType  string `json:"pattern_type"`
 	Principal    string `json:"principal"`
 	Host         string `json:"host"`
-	Operation    string `json:"operation"`
+	ResourceType string `json:"resource_type"`
+	PatternType  string `json:"pattern_type"`
+	ResourceName string `json:"resource_name"`
 	Permission   string `json:"permission"`
+	Operation    string `json:"operation"`
 }
 
 func (t Acl) TableHeader() []string {
@@ -69,37 +69,37 @@ func (t AclList) TableRows() []map[string]string {
 }
 
 type AclListQueryParams struct {
-	ResourceType string
-	ResourceName string
-	PatternType  string
 	Principal    string
 	Host         string
-	Operation    string
+	ResourceType string
+	PatternType  string
+	ResourceName string
 	Permission   string
+	Operation    string
 }
 
 func (q AclListQueryParams) Encode() string {
 	queryParams := url.Values{}
-	if q.ResourceType != "" {
-		queryParams.Add("resource_type", q.ResourceType)
-	}
-	if q.ResourceName != "" {
-		queryParams.Add("resource_name", q.ResourceName)
-	}
-	if q.PatternType != "" {
-		queryParams.Add("pattern_type", q.PatternType)
-	}
 	if q.Principal != "" {
 		queryParams.Add("principal", q.Principal)
 	}
 	if q.Host != "" {
 		queryParams.Add("host", q.Host)
 	}
-	if q.Operation != "" {
-		queryParams.Add("operation", q.Operation)
+	if q.ResourceType != "" {
+		queryParams.Add("resource_type", q.ResourceType)
+	}
+	if q.PatternType != "" {
+		queryParams.Add("pattern_type", q.PatternType)
+	}
+	if q.ResourceName != "" {
+		queryParams.Add("resource_name", q.ResourceName)
 	}
 	if q.Permission != "" {
 		queryParams.Add("permission", q.Permission)
+	}
+	if q.Operation != "" {
+		queryParams.Add("operation", q.Operation)
 	}
 	return queryParams.Encode()
 }
