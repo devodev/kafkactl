@@ -69,3 +69,39 @@ type AclListResponse struct {
 	V3Base
 	Data []AclData `json:"data"`
 }
+
+type AclQueryParams struct {
+	ResourceType string
+	ResourceName string
+	PatternType  string
+	Principal    string
+	Host         string
+	Operation    string
+	Permission   string
+}
+
+func (q AclQueryParams) Encode() url.Values {
+	queryParams := url.Values{}
+	if q.ResourceType != "" {
+		queryParams.Add("resource_type", q.ResourceType)
+	}
+	if q.ResourceName != "" {
+		queryParams.Add("resource_name", q.ResourceName)
+	}
+	if q.PatternType != "" {
+		queryParams.Add("pattern_type", q.PatternType)
+	}
+	if q.Principal != "" {
+		queryParams.Add("principal", q.Principal)
+	}
+	if q.Host != "" {
+		queryParams.Add("host", q.Host)
+	}
+	if q.Operation != "" {
+		queryParams.Add("operation", q.Operation)
+	}
+	if q.Permission != "" {
+		queryParams.Add("permission", q.Permission)
+	}
+	return queryParams
+}

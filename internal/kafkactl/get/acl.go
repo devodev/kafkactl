@@ -4,26 +4,20 @@ import (
 	"context"
 	"os"
 
+	v3 "github.com/devodev/kafkactl/internal/api/v3"
 	"github.com/devodev/kafkactl/internal/cli"
 	"github.com/devodev/kafkactl/internal/kafkactl/util"
-	"github.com/devodev/kafkactl/internal/presentation"
 	"github.com/spf13/cobra"
 )
 
 type getAclOptions struct {
 	cli *cli.CLI
 
-	resourceType string
-	resourceName string
-	patternType  string
-	principal    string
-	host         string
-	operation    string
-	permission   string
+	queryParams *v3.AclQueryParams
 }
 
 func newCmdGetAcl(c *cli.CLI) *cobra.Command {
-	o := getAclOptions{cli: c}
+	o := getAclOptions{cli: c, queryParams: &v3.AclQueryParams{}}
 
 	cmd := &cobra.Command{
 		Use:     "acl",
@@ -44,13 +38,13 @@ func newCmdGetAcl(c *cli.CLI) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&o.resourceType, "resource-type", "", "Filter by Resource Type")
-	cmd.Flags().StringVar(&o.resourceName, "resource-name", "", "Filter by Resource Name")
-	cmd.Flags().StringVar(&o.patternType, "pattern-type", "", "Filter by Pattern Type")
-	cmd.Flags().StringVar(&o.principal, "principal", "", "Filter by Principal")
-	cmd.Flags().StringVar(&o.host, "host", "", "Filter by Host")
-	cmd.Flags().StringVar(&o.operation, "operation", "", "Filter by Operation")
-	cmd.Flags().StringVar(&o.permission, "permission", "", "Filter by Permission")
+	cmd.Flags().StringVar(&o.queryParams.ResourceType, "resource-type", "", "Filter by Resource Type")
+	cmd.Flags().StringVar(&o.queryParams.ResourceName, "resource-name", "", "Filter by Resource Name")
+	cmd.Flags().StringVar(&o.queryParams.PatternType, "pattern-type", "", "Filter by Pattern Type")
+	cmd.Flags().StringVar(&o.queryParams.Principal, "principal", "", "Filter by Principal")
+	cmd.Flags().StringVar(&o.queryParams.Host, "host", "", "Filter by Host")
+	cmd.Flags().StringVar(&o.queryParams.Operation, "operation", "", "Filter by Operation")
+	cmd.Flags().StringVar(&o.queryParams.Permission, "permission", "", "Filter by Permission")
 
 	return cmd
 }
@@ -68,7 +62,7 @@ func (o *getAclOptions) validate() error {
 }
 
 func (o *getAclOptions) run() error {
-	resp, err := o.cli.Client.Acl.ListWide(context.Background(), o.cli.Context.ClusterID, o.queryParams())
+	resp, err := o.cli.Client.Acl.ListWide(context.Background(), o.cli.Context.ClusterID, o.queryParams)
 	if err != nil {
 		return util.MakeCLIError("get", "acl", err)
 	}
@@ -76,16 +70,4 @@ func (o *getAclOptions) run() error {
 		return util.MakeSerializationError(err)
 	}
 	return nil
-}
-
-func (o *getAclOptions) queryParams() *presentation.AclListQueryParams {
-	return &presentation.AclListQueryParams{
-		ResourceType: o.resourceType,
-		ResourceName: o.resourceName,
-		PatternType:  o.patternType,
-		Principal:    o.principal,
-		Host:         o.host,
-		Operation:    o.operation,
-		Permission:   o.permission,
-	}
 }

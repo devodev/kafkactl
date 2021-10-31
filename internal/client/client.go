@@ -131,16 +131,32 @@ func New(baseURL string, opts ...kafkaRestOption) (*KafkaRest, error) {
 }
 
 func (c *KafkaRest) Get(ctx context.Context, endpoint string, result interface{}, opts ...HttpOption) error {
-	return c.roundtrip(ctx, "GET", endpoint, nil, result, opts...)
+	return c.GetWithParams(ctx, endpoint, url.Values{}, result, opts...)
+}
+
+func (c *KafkaRest) GetWithParams(ctx context.Context, endpoint string, params url.Values, result interface{}, opts ...HttpOption) error {
+	return c.roundtrip(ctx, "GET", endpoint, params, nil, result, opts...)
 }
 
 func (c *KafkaRest) Post(ctx context.Context, endpoint string, payload interface{}, result interface{}, opts ...HttpOption) error {
-	return c.roundtrip(ctx, "POST", endpoint, payload, result, opts...)
+	return c.PostWithParams(ctx, endpoint, url.Values{}, payload, result, opts...)
 }
 
-func (c *KafkaRest) roundtrip(ctx context.Context, method, endpoint string, payload interface{}, result interface{}, opts ...HttpOption) error {
+func (c *KafkaRest) PostWithParams(ctx context.Context, endpoint string, params url.Values, payload interface{}, result interface{}, opts ...HttpOption) error {
+	return c.roundtrip(ctx, "POST", endpoint, params, payload, result, opts...)
+}
+
+func (c *KafkaRest) Delete(ctx context.Context, endpoint string, result interface{}, opts ...HttpOption) error {
+	return c.DeleteWithParams(ctx, endpoint, url.Values{}, result, opts...)
+}
+
+func (c *KafkaRest) DeleteWithParams(ctx context.Context, endpoint string, params url.Values, result interface{}, opts ...HttpOption) error {
+	return c.roundtrip(ctx, "DELETE", endpoint, params, nil, result, opts...)
+}
+
+func (c *KafkaRest) roundtrip(ctx context.Context, method, endpoint string, params url.Values, payload interface{}, result interface{}, opts ...HttpOption) error {
 	log.WithField("source", "KafkaRest.roundtrip").Debugf("%s %s", method, endpoint)
-	req, err := c.makeRequest(ctx, method, endpoint, payload)
+	req, err := c.makeRequest(ctx, method, endpoint, params, payload)
 	if err != nil {
 		return err
 	}
@@ -156,9 +172,11 @@ func (c *KafkaRest) roundtrip(ctx context.Context, method, endpoint string, payl
 	return c.handleResponse(resp, result)
 }
 
-func (c *KafkaRest) makeRequest(ctx context.Context, method, endpoint string, payload interface{}) (*http.Request, error) {
+func (c *KafkaRest) makeRequest(ctx context.Context, method, endpoint string, params url.Values, payload interface{}) (*http.Request, error) {
 	url := *c.BaseURL
 	url.Path = path.Join(url.Path, endpoint)
+	url.RawQuery = params.Encode()
+
 	reqURL := url.String()
 
 	jsonPayload := new(bytes.Buffer)
