@@ -25,7 +25,7 @@ kafkactl get acl [flags]
   -f, --config-file string   Configuration file path
   -H, --header stringArray   Additional HTTP header(s)
   -v, --log-level string     Log level (debug, info, warn, error, fatal, panic) (default "warning")
-  -o, --output string        How to format the output (table, json) (default "table")
+  -o, --output string        Output format (table,json) (default "table")
 ```
 
 ### SEE ALSO

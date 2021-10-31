@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	kafkaclient "github.com/devodev/kafkactl/internal/client"
 	"github.com/devodev/kafkactl/internal/config"
@@ -15,7 +16,24 @@ import (
 
 type cliOption func(c *CLI) error
 
-func WithIgnoreClusterIDUnset() cliOption {
+func WithLimitedOutputs(outputs ...string) cliOption {
+	return func(c *CLI) error {
+		if len(outputs) == 0 {
+			return fmt.Errorf("supported outputs is empty")
+		}
+		for _, o := range outputs {
+			if !serializers.IsSupported(o) {
+				return fmt.Errorf("output not supported: %s", o)
+			}
+		}
+		c.supportedOutputs = outputs
+		return nil
+	}
+}
+
+type cliInitOption cliOption
+
+func WithIgnoreClusterIDUnset() cliInitOption {
 	return func(c *CLI) error {
 		c.ignoreClusterIDUnset = true
 		return nil
@@ -26,28 +44,44 @@ type CLI struct {
 	flagset *pflag.FlagSet
 
 	ignoreClusterIDUnset bool
+	supportedOutputs     []string
 
 	Context    *config.Context
 	Client     *kafkaclient.KafkaRest
 	Serializer serializers.Serializer
 }
 
-func New() *CLI {
+func New(opts ...cliOption) (*CLI, error) {
+	var supportedOutputs []string
+	for _, s := range serializers.Types {
+		supportedOutputs = append(supportedOutputs, s.String())
+	}
+
+	c := &CLI{
+		supportedOutputs: supportedOutputs,
+	}
+
+	for _, opt := range opts {
+		if err := opt(c); err != nil {
+			return nil, err
+		}
+	}
+
 	flagset := pflag.NewFlagSet("", pflag.ContinueOnError)
-	flagset.StringP("output", "o", "table", "How to format the output (table, json)")
+	flagset.StringP("output", "o", c.supportedOutputs[0], fmt.Sprintf("Output format (%s)", strings.Join(c.supportedOutputs, ",")))
 	flagset.StringP("config-file", "f", "", "Configuration file path")
 	flagset.StringArrayP("header", "H", []string{}, "Additional HTTP header(s)")
 
-	return &CLI{
-		flagset: flagset,
-	}
+	c.flagset = flagset
+
+	return c, nil
 }
 
 func (c *CLI) Flags() *pflag.FlagSet {
 	return c.flagset
 }
 
-func (c *CLI) Init(cmd *cobra.Command, args []string, opts ...cliOption) error {
+func (c *CLI) Init(cmd *cobra.Command, args []string, opts ...cliInitOption) error {
 	// parse flags
 	output, err := c.flagset.GetString("output")
 	if err != nil {
@@ -112,7 +146,6 @@ func (c *CLI) Init(cmd *cobra.Command, args []string, opts ...cliOption) error {
 	c.Client = client
 	c.Serializer = ser
 
-	// apply options
 	for _, opt := range opts {
 		if err := opt(c); err != nil {
 			return err

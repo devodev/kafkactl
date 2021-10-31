@@ -14,7 +14,8 @@ func New() *cobra.Command {
 		},
 	}
 
-	c := cli.New()
+	c, err := cli.New()
+	cobra.CheckErr(err)
 
 	cmd.PersistentFlags().AddFlagSet(c.Flags())
 

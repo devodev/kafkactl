@@ -18,6 +18,7 @@ kafkactl [flags]
 * [kafkactl config](kafkactl_config.md)	 - Interact with the kafkactl config file
 * [kafkactl create](kafkactl_create.md)	 - Create resources
 * [kafkactl delete](kafkactl_delete.md)	 - Delete resources
+* [kafkactl describe](kafkactl_describe.md)	 - Describe resources
 * [kafkactl get](kafkactl_get.md)	 - Display resources
 * [kafkactl update](kafkactl_update.md)	 - Update resources
 * [kafkactl version](kafkactl_version.md)	 - Display the current version and platform

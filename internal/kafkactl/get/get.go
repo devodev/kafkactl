@@ -14,7 +14,8 @@ func New() *cobra.Command {
 		},
 	}
 
-	c := cli.New()
+	c, err := cli.New(cli.WithLimitedOutputs("table", "json"))
+	cobra.CheckErr(err)
 
 	cmd.PersistentFlags().AddFlagSet(c.Flags())
 
