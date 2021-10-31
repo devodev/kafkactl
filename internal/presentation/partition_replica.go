@@ -60,13 +60,47 @@ func (t PartitionReplicaList) leader(PartitionID int) (int, error) {
 }
 
 func (t PartitionReplicaList) replicaBrokers(PartitionID int) []int {
+	leader := -1
 	lookup := make(map[int]struct{}, len(t))
 	for _, replica := range t {
 		if replica.PartitionID == PartitionID {
-			lookup[replica.BrokerID] = struct{}{}
+			if replica.IsLeader {
+				leader = replica.BrokerID
+			} else {
+				lookup[replica.BrokerID] = struct{}{}
+			}
 		}
 	}
-	brokerIDs := make([]int, 0, len(lookup))
+
+	brokerIDs := make([]int, 0, len(lookup)+1)
+	if leader != -1 {
+		brokerIDs = append(brokerIDs, leader)
+	}
+
+	for id := range lookup {
+		brokerIDs = append(brokerIDs, id)
+	}
+	return brokerIDs
+}
+
+func (t PartitionReplicaList) isrBrokers(PartitionID int) []int {
+	leader := -1
+	lookup := make(map[int]struct{}, len(t))
+	for _, replica := range t {
+		if replica.PartitionID == PartitionID && replica.IsInSync {
+			if replica.IsLeader {
+				leader = replica.BrokerID
+			} else {
+				lookup[replica.BrokerID] = struct{}{}
+			}
+		}
+	}
+
+	brokerIDs := make([]int, 0, len(lookup)+1)
+	if leader != -1 {
+		brokerIDs = append(brokerIDs, leader)
+	}
+
 	for id := range lookup {
 		brokerIDs = append(brokerIDs, id)
 	}
@@ -85,20 +119,6 @@ func (t PartitionReplicaList) partitionReplicas(BrokerID int) []int {
 		partitionIDs = append(partitionIDs, id)
 	}
 	return partitionIDs
-}
-
-func (t PartitionReplicaList) isrBrokers(PartitionID int) []int {
-	lookup := make(map[int]struct{}, len(t))
-	for _, replica := range t {
-		if replica.PartitionID == PartitionID && replica.IsInSync {
-			lookup[replica.BrokerID] = struct{}{}
-		}
-	}
-	brokerIDs := make([]int, 0, len(lookup))
-	for id := range lookup {
-		brokerIDs = append(brokerIDs, id)
-	}
-	return brokerIDs
 }
 
 func (t PartitionReplicaList) TableHeader() []string {
