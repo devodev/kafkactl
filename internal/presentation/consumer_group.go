@@ -56,6 +56,7 @@ func MapConsumerGroup(data *v3.ConsumerGroupData, consumers ConsumerList) *Consu
 		State:             data.State,
 		PartitionAssignor: data.PartitionAssignor,
 		CoordinatorBroker: coordinatorBrokerID,
+		Consumers:         consumers,
 		ConsumersCount:    len(consumers),
 	}
 }
@@ -73,11 +74,12 @@ func extractCoordinator(related v3.V3BaseDataRelated) (int, error) {
 }
 
 type ConsumerGroup struct {
-	ConsumerGroupID   string `json:"consumer_group_id"`
-	State             string `json:"state"`
-	PartitionAssignor string `json:"partition_assignor"`
-	CoordinatorBroker int    `json:"coordinator_broker"`
-	ConsumersCount    int    `json:"consumers_count"`
+	ConsumerGroupID   string       `json:"consumer_group_id"`
+	State             string       `json:"state"`
+	PartitionAssignor string       `json:"partition_assignor"`
+	CoordinatorBroker int          `json:"coordinator_broker"`
+	Consumers         ConsumerList `json:"consumers"`
+	ConsumersCount    int          `json:"consumers_count"`
 }
 
 func (t ConsumerGroup) TableHeader() []string {
