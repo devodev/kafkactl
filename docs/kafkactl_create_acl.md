@@ -1,9 +1,9 @@
-## kafkactl get acl
+## kafkactl create acl
 
 ACL API
 
 ```
-kafkactl get acl [flags]
+kafkactl create acl [flags]
 ```
 
 ### Options
@@ -30,5 +30,5 @@ kafkactl get acl [flags]
 
 ### SEE ALSO
 
-* [kafkactl get](kafkactl_get.md)	 - Display resources
+* [kafkactl create](kafkactl_create.md)	 - Create resources
 

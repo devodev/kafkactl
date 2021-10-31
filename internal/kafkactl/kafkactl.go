@@ -20,7 +20,9 @@ func Execute() error {
 }
 
 func GenDoc(filepath string) error {
-	return doc.GenMarkdownTree(newRootCmd(), filepath)
+	cmd := newRootCmd()
+	cmd.DisableAutoGenTag = true
+	return doc.GenMarkdownTree(cmd, filepath)
 }
 
 func newRootCmd() *cobra.Command {
