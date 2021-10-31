@@ -7,8 +7,8 @@ import (
 
 type JSONSerializer struct{}
 
-func NewJSONSerializer() *JSONSerializer {
-	return &JSONSerializer{}
+func NewJSONSerializer() (*JSONSerializer, error) {
+	return &JSONSerializer{}, nil
 }
 
 func (s *JSONSerializer) Serialize(data interface{}, out io.Writer) error {
