@@ -19,6 +19,7 @@ func New() *cobra.Command {
 	cmd.PersistentFlags().AddFlagSet(c.Flags())
 
 	cmd.AddCommand(newCmdDeleteAcl(c))
+	cmd.AddCommand(newCmdDeleteTopic(c))
 
 	return cmd
 }

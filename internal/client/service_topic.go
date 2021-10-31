@@ -15,9 +15,23 @@ const (
 	topicCreateEndpoint = "/v3/clusters/%s/topics"
 	topicListEndpoint   = "/v3/clusters/%s/topics"
 	topicGetEndpoint    = "/v3/clusters/%s/topics/%s"
+	topicDeleteEndpoint = "/v3/clusters/%s/topics/%s"
 )
 
 type ServiceTopic service
+
+func (s *ServiceTopic) Delete(ctx context.Context, clusterID, topicName string) (string, error) {
+	var statusRetriever StatusRetriever
+	if err := s.client.Delete(ctx, fmt.Sprintf(topicDeleteEndpoint, clusterID, topicName), nil, statusRetriever.HttpOption); err != nil {
+		return "", err
+	}
+
+	if statusRetriever.Code != http.StatusNoContent {
+		return "", fmt.Errorf(statusRetriever.Status)
+	}
+	response := fmt.Sprintf("Topic %s deleted successfully", topicName)
+	return response, nil
+}
 
 func (s *ServiceTopic) Create(ctx context.Context, clusterID string, payload *v3.TopicCreateRequest) (string, error) {
 	var statusRetriever StatusRetriever
