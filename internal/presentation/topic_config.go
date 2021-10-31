@@ -50,6 +50,21 @@ func (t TopicConfig) TableRows() []map[string]string {
 
 type TopicConfigList []TopicConfig
 
+func (l TopicConfigList) shortAndOverridden() []TopicConfigShort {
+	configs := make([]TopicConfigShort, 0, len(l))
+	for _, topicConfigData := range l {
+		// filter out default config
+		if topicConfigData.IsDefault {
+			continue
+		}
+		configs = append(configs, TopicConfigShort{
+			Name:  topicConfigData.Name,
+			Value: topicConfigData.Value,
+		})
+	}
+	return configs
+}
+
 func (t TopicConfigList) TableHeader() []string {
 	return topicConfigHeader
 }

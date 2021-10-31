@@ -9,13 +9,13 @@ import (
 )
 
 var (
-	topicHeader  = []string{"topic_name", "replication_factor", "partitions_count", "configs", "is_internal"}
+	topicHeader  = []string{"topic_name", "replication_factor", "partitions_count", "configs_overridden", "is_internal"}
 	topicDataMap = func(data Topic) map[string]string {
 		return map[string]string{
 			"topic_name":         data.TopicName,
 			"replication_factor": strconv.Itoa(data.ReplicationFactor),
 			"partitions_count":   strconv.Itoa(data.PartitionsCount),
-			"configs":            formatTopicConfigs(data.Configs),
+			"configs":            formatTopicConfigs(data.ConfigsOverridden),
 			"is_internal":        fmt.Sprintf("%v", data.IsInternal),
 		}
 	}
@@ -25,10 +25,10 @@ var (
 {{ printf "%-20s %d" "ReplicationFactor:" .ReplicationFactor }}
 {{ printf "%-20s %d" "PartitionsCount:" .PartitionsCount }}
 {{ printf "%-20s %v" "IsInternal:" .IsInternal }}
-{{- if eq (len .Configs) 0 }}
+{{- if eq (len .ConfigsOverridden) 0 }}
 {{ printf "%-20s -" "Configs:" -}}
 {{- end }}
-{{- range $idx, $config := .Configs -}}
+{{- range $idx, $config := .ConfigsOverridden -}}
 {{- $c := printf "%s=%s" $config.Name $config.Value -}}
 {{- if eq $idx 0 }}
 {{ printf "%-20s %s" "Configs:" $c -}}
@@ -44,24 +44,15 @@ var (
 func MapTopic(data *v3.TopicData, pData PartitionList, cData TopicConfigList) *Topic {
 	partitionsCount := len(pData)
 
-	configs := make([]TopicConfigShort, 0, len(cData))
-	for _, topicConfigData := range cData {
-		// filter out default config
-		if topicConfigData.IsDefault {
-			continue
-		}
-		configs = append(configs, TopicConfigShort{
-			Name:  topicConfigData.Name,
-			Value: topicConfigData.Value,
-		})
-	}
+	configs := cData.shortAndOverridden()
 
 	return &Topic{
 		TopicName:         data.TopicName,
 		ReplicationFactor: data.ReplicationFactor,
 		PartitionsCount:   partitionsCount,
 		Partitions:        pData,
-		Configs:           configs,
+		Configs:           cData,
+		ConfigsOverridden: configs,
 		IsInternal:        data.IsInternal,
 	}
 }
@@ -71,7 +62,8 @@ type Topic struct {
 	ReplicationFactor int                `json:"replication_factor"`
 	PartitionsCount   int                `json:"partitions_count"`
 	Partitions        PartitionList      `json:"partitions"`
-	Configs           []TopicConfigShort `json:"configs"`
+	Configs           TopicConfigList    `json:"configs"`
+	ConfigsOverridden []TopicConfigShort `json:"configs_overridden"`
 	IsInternal        bool               `json:"is_internal"`
 }
 
