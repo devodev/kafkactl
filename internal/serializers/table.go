@@ -20,9 +20,9 @@ type Tableizer interface {
 	TableRows() []map[string]string
 }
 
-type TableSerializerOption func(*TableSerializer) error
+type tableSerializerOption func(*TableSerializer) error
 
-func WithPadding(p int) TableSerializerOption {
+func WithPadding(p int) tableSerializerOption {
 	return func(b *TableSerializer) error {
 		if p < 0 {
 			return fmt.Errorf("padding must be greater than or equal to 0")
@@ -32,14 +32,14 @@ func WithPadding(p int) TableSerializerOption {
 	}
 }
 
-func WithColumnFormatter(f formatter.Header) TableSerializerOption {
+func WithColumnFormatter(f formatter.Header) tableSerializerOption {
 	return func(b *TableSerializer) error {
 		b.columnFormatter = f
 		return nil
 	}
 }
 
-func WithRowValueFormatters(f []formatter.RowValue) TableSerializerOption {
+func WithRowValueFormatters(f []formatter.RowValue) tableSerializerOption {
 	return func(b *TableSerializer) error {
 		b.rowValueFormatters = f
 		return nil
@@ -56,18 +56,18 @@ type TableSerializer struct {
 	widthMap map[string]int
 }
 
-func NewTableSerializer(options ...TableSerializerOption) (*TableSerializer, error) {
-	builder := &TableSerializer{
+func NewTableSerializer(opts ...tableSerializerOption) (*TableSerializer, error) {
+	s := &TableSerializer{
 		padding:            defaultPadding,
 		columnFormatter:    defaultColumnFormatter,
 		rowValueFormatters: defaultRowValueFormatters,
 	}
-	for _, opt := range options {
-		if err := opt(builder); err != nil {
+	for _, opt := range opts {
+		if err := opt(s); err != nil {
 			return nil, err
 		}
 	}
-	return builder, nil
+	return s, nil
 }
 
 func (s *TableSerializer) Serialize(data interface{}, out io.Writer) error {
