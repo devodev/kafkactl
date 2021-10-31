@@ -54,7 +54,7 @@ func MapConsumerGroup(data *v3.ConsumerGroupData, consumers ConsumerList) *Consu
 	return &ConsumerGroup{
 		ConsumerGroupID:   data.ConsumerGroupID,
 		State:             data.State,
-		PartitionAssignor: data.State,
+		PartitionAssignor: data.PartitionAssignor,
 		CoordinatorBroker: coordinatorBrokerID,
 		ConsumersCount:    len(consumers),
 	}
