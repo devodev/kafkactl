@@ -33,8 +33,8 @@ make gendoc
   - [x] Add update broker-config
   - [x] Add update cluster-config
   - [x] Add update topic-config
-- [ ] Add delete command
-  - [ ] Add delete acl
+- [x] Add delete command
+  - [x] Add delete acl
   - [ ] Add delete broker
   - [ ] Add delete topic
 - [ ] Add describe command

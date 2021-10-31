@@ -6,6 +6,7 @@ import (
 
 	configCmd "github.com/devodev/kafkactl/internal/kafkactl/config"
 	createCmd "github.com/devodev/kafkactl/internal/kafkactl/create"
+	deleteCmd "github.com/devodev/kafkactl/internal/kafkactl/delete"
 	getCmd "github.com/devodev/kafkactl/internal/kafkactl/get"
 	updateCmd "github.com/devodev/kafkactl/internal/kafkactl/update"
 
@@ -40,6 +41,7 @@ func newRootCmd() *cobra.Command {
 
 	cmd.AddCommand(configCmd.New())
 	cmd.AddCommand(createCmd)
+	cmd.AddCommand(deleteCmd.New())
 	cmd.AddCommand(getCmd)
 	cmd.AddCommand(newVersionCmd())
 	cmd.AddCommand(updateCmd)
