@@ -24,10 +24,11 @@ func (s *ServiceTopic) Create(ctx context.Context, clusterID string, payload *v3
 	if err := s.client.Post(ctx, fmt.Sprintf(topicCreateEndpoint, clusterID), payload, nil, statusRetriever.HttpOption); err != nil {
 		return "", err
 	}
-	response := statusRetriever.Status
-	if statusRetriever.Code == http.StatusCreated {
-		response = fmt.Sprintf("Topic %s created successfully", payload.TopicName)
+
+	if statusRetriever.Code != http.StatusCreated {
+		return "", fmt.Errorf(statusRetriever.Status)
 	}
+	response := fmt.Sprintf("Topic %s created successfully", payload.TopicName)
 	return response, nil
 }
 
