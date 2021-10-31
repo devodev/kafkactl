@@ -63,7 +63,7 @@ func (s *ServiceBrokerConfig) GetWide(ctx context.Context, clusterID string, bro
 	return brokerConfig, nil
 }
 
-func (s *ServiceBrokerConfig) BatchAlter(ctx context.Context, clusterID string, brokerID int, payload *v3.BrokerConfigBatchAlterRequest) (string, error) {
+func (s *ServiceBrokerConfig) BatchAlter(ctx context.Context, clusterID string, brokerID int, payload *v3.ConfigBatchAlterRequest) (string, error) {
 	var statusRetriever StatusRetriever
 	if err := s.client.Post(ctx, fmt.Sprintf(brokerConfigBatchAlterEndpoint, clusterID, brokerID), payload, nil, statusRetriever.HttpOption); err != nil {
 		return "", err

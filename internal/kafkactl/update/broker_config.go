@@ -21,7 +21,7 @@ type updateBrokerConfigOptions struct {
 	brokerIDs map[int]struct{}
 	configs   []string
 
-	request *v3.BrokerConfigBatchAlterRequest
+	request *v3.ConfigBatchAlterRequest
 }
 
 func newCmdupdateBrokerConfig(c *cli.CLI) *cobra.Command {
@@ -127,22 +127,22 @@ func (o *updateBrokerConfigOptions) run() error {
 	return nil
 }
 
-func (o *updateBrokerConfigOptions) makeRequest() (*v3.BrokerConfigBatchAlterRequest, error) {
-	var req v3.BrokerConfigBatchAlterRequest
+func (o *updateBrokerConfigOptions) makeRequest() (*v3.ConfigBatchAlterRequest, error) {
+	var req v3.ConfigBatchAlterRequest
 
 	brokerConfigs, err := util.KeyValueDeleteParse("=", "-", o.configs)
 	if err != nil {
 		return nil, fmt.Errorf("could not parse config key-value pair: %s", err.Error())
 	}
 	if len(brokerConfigs) > 0 {
-		req.Data = make([]v3.BrokerConfigBatchAlterData, 0, len(brokerConfigs))
+		req.Data = make([]v3.ConfigBatchAlterData, 0, len(brokerConfigs))
 	}
 	for key, value := range brokerConfigs {
-		var config v3.BrokerConfigBatchAlterData
+		var config v3.ConfigBatchAlterData
 		if value == "" {
-			config = v3.BrokerConfigBatchAlterData{Name: key, Operation: v3.BrokerConfigDeleteOperation}
+			config = v3.ConfigBatchAlterData{Name: key, Operation: v3.ConfigDeleteOperation}
 		} else {
-			config = v3.BrokerConfigBatchAlterData{Name: key, Value: value}
+			config = v3.ConfigBatchAlterData{Name: key, Value: value}
 		}
 		req.Data = append(req.Data, config)
 	}

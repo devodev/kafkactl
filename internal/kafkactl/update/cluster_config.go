@@ -16,7 +16,7 @@ type updateClusterConfigOptions struct {
 
 	configs []string
 
-	request *v3.ClusterConfigBatchAlterRequest
+	request *v3.ConfigBatchAlterRequest
 }
 
 func newCmdUpdateClusterConfig(c *cli.CLI) *cobra.Command {
@@ -79,22 +79,22 @@ func (o *updateClusterConfigOptions) run() error {
 	return nil
 }
 
-func (o *updateClusterConfigOptions) makeRequest() (*v3.ClusterConfigBatchAlterRequest, error) {
-	var req v3.ClusterConfigBatchAlterRequest
+func (o *updateClusterConfigOptions) makeRequest() (*v3.ConfigBatchAlterRequest, error) {
+	var req v3.ConfigBatchAlterRequest
 
 	topicConfigs, err := util.KeyValueDeleteParse("=", "-", o.configs)
 	if err != nil {
 		return nil, fmt.Errorf("could not parse config key-value pair: %s", err.Error())
 	}
 	if len(topicConfigs) > 0 {
-		req.Data = make([]v3.ClusterConfigBatchAlterData, 0, len(topicConfigs))
+		req.Data = make([]v3.ConfigBatchAlterData, 0, len(topicConfigs))
 	}
 	for key, value := range topicConfigs {
-		var config v3.ClusterConfigBatchAlterData
+		var config v3.ConfigBatchAlterData
 		if value == "" {
-			config = v3.ClusterConfigBatchAlterData{Name: key, Operation: v3.ClusterConfigDeleteOperation}
+			config = v3.ConfigBatchAlterData{Name: key, Operation: v3.ConfigDeleteOperation}
 		} else {
-			config = v3.ClusterConfigBatchAlterData{Name: key, Value: value}
+			config = v3.ConfigBatchAlterData{Name: key, Value: value}
 		}
 		req.Data = append(req.Data, config)
 	}

@@ -1,11 +1,5 @@
 package v3
 
-type TopicConfigOperation string
-
-var (
-	TopicConfigDeleteOperation TopicConfigOperation = "DELETE"
-)
-
 type TopicConfigData struct {
 	V3BaseData
 	ClusterID   string `json:"cluster_id"`
@@ -30,14 +24,4 @@ type TopicConfigListResponse struct {
 
 type TopicConfigGetResponse struct {
 	TopicConfigData
-}
-
-type TopicConfigBatchAlterData struct {
-	Name      string               `json:"name"`
-	Value     string               `json:"value,omitempty"`
-	Operation TopicConfigOperation `json:"operation,omitempty"`
-}
-
-type TopicConfigBatchAlterRequest struct {
-	Data []TopicConfigBatchAlterData `json:"data"`
 }

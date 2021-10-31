@@ -47,7 +47,7 @@ func (s *ServiceClusterConfig) GetWide(ctx context.Context, clusterID, configNam
 	return clusterConfig, nil
 }
 
-func (s *ServiceClusterConfig) BatchAlter(ctx context.Context, clusterID string, payload *v3.ClusterConfigBatchAlterRequest) (string, error) {
+func (s *ServiceClusterConfig) BatchAlter(ctx context.Context, clusterID string, payload *v3.ConfigBatchAlterRequest) (string, error) {
 	var statusRetriever StatusRetriever
 	if err := s.client.Post(ctx, fmt.Sprintf(clusterConfigBatchAlterEndpoint, clusterID), payload, nil, statusRetriever.HttpOption); err != nil {
 		return "", err
