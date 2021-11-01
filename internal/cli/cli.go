@@ -124,7 +124,7 @@ func (c *CLI) Init(cmd *cobra.Command, args []string, opts ...cliInitOption) err
 	}
 
 	// parse headers
-	headerMap, err := util.KeyValueParse("=", headers)
+	headerMap, err := util.KeyValueParse(":", headers)
 	if err != nil {
 		return fmt.Errorf("could not parse headers: %s", err)
 	}
