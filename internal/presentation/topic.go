@@ -21,22 +21,29 @@ var (
 	}
 	TopicDescribeTemplate = `
 {{- $partitionsTable := tableify .Partitions  -}}
-{{- printf "%-20s %s" "Topic:" .TopicName }}
-{{ printf "%-20s %d" "ReplicationFactor:" .ReplicationFactor }}
-{{ printf "%-20s %d" "PartitionsCount:" .PartitionsCount }}
-{{ printf "%-20s %v" "IsInternal:" .IsInternal }}
+{{- $groupsTable := tableify .Groups  -}}
+{{- printf "%-25s %s" "Topic:" .TopicName }}
+{{ printf "%-25s %d" "ReplicationFactor:" .ReplicationFactor }}
+{{ printf "%-25s %d" "PartitionsCount:" .PartitionsCount }}
+{{ printf "%-25s %v" "IsInternal:" .IsInternal }}
 {{- if eq (len .ConfigsOverridden) 0 }}
-{{ printf "%-20s -" "Configs:" -}}
+{{ printf "%-25s -" "Configs:" -}}
 {{- end }}
 {{- range $idx, $config := .ConfigsOverridden -}}
 {{- $c := printf "%s=%s" $config.Name $config.Value -}}
 {{- if eq $idx 0 }}
-{{ printf "%-20s %s" "Configs:" $c -}}
+{{ printf "%-25s %s" "Configs:" $c -}}
 {{ else }}
-{{ printf "%-20s %s" "" $c -}}
+{{ printf "%-25s %s" "" $c -}}
 {{ end -}}
 {{- end }}
-{{ printf "%-20s" "Partitions:" }}
+{{- if eq (len .Groups) 0 }}
+{{ printf "%-25s -" "Consumer Groups:" -}}
+{{ else }}
+{{ printf "%-25s" "Active Consumer Groups:" }}
+{{ $groupsTable -}}
+{{- end }}
+{{ printf "%-25s" "Partitions:" }}
 {{ $partitionsTable -}}
 `
 )

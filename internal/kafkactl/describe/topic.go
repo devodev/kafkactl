@@ -57,20 +57,39 @@ func (o *describeTopicOptions) validate() error {
 }
 
 func (o *describeTopicOptions) run() error {
-	resp, err := o.cli.Client.Topic.GetWide(context.Background(), o.cli.Context.ClusterID, o.topic)
+	topic, err := o.cli.Client.Topic.GetWide(context.Background(), o.cli.Context.ClusterID, o.topic)
 	if err != nil {
 		return util.MakeCLIError("describe", "topic", err)
+	}
+
+	groups, err := o.cli.Client.ConsumerGroup.ListWide(context.Background(), o.cli.Context.ClusterID)
+	if err != nil {
+		return util.MakeCLIError("describe", "topic", err)
+	}
+
+	// TODO: filter groups by topic (use consumer assignments)
+
+	// TODO: Add offset/lag to group output
+
+	container := describeTopicContainer{
+		Topic:  topic,
+		Groups: groups,
 	}
 
 	tc := &serializers.TemplateContainer{
 		Templates: []string{
 			presentation.TopicDescribeTemplate,
 		},
-		Data: resp,
+		Data: container,
 	}
 
 	if err := o.cli.Serializer.Serialize(tc, os.Stdout); err != nil {
 		return util.MakeSerializationError(err)
 	}
 	return nil
+}
+
+type describeTopicContainer struct {
+	*presentation.Topic
+	Groups presentation.ConsumerGroupList
 }
