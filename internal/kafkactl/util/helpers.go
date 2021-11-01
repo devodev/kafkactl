@@ -9,10 +9,10 @@ func KeyValueParse(sep string, values []string) (map[string]string, error) {
 	keyPairs := make(map[string]string, len(values))
 	for _, value := range values {
 		keyPair := strings.Split(value, sep)
-		if len(keyPair) != 2 {
+		if len(keyPair) < 2 {
 			return nil, fmt.Errorf("invalid format (key%svalue): %s", sep, value)
 		}
-		keyPairs[keyPair[0]] = keyPair[1]
+		keyPairs[keyPair[0]] = strings.TrimSpace(strings.Join(keyPair[1:], ""))
 	}
 	return keyPairs, nil
 }
