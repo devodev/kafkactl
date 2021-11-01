@@ -93,6 +93,31 @@ func (t ConsumerGroup) TableRows() []map[string]string {
 
 type ConsumerGroupList []ConsumerGroup
 
+type CGFilter func(cg ConsumerGroup) bool
+
+func CGForTopic(topic string) CGFilter {
+	return func(cg ConsumerGroup) bool {
+		for _, c := range cg.Consumers {
+			for _, a := range c.Assignments {
+				if a.TopicName == topic {
+					return true
+				}
+			}
+		}
+		return false
+	}
+}
+
+func (l ConsumerGroupList) Filter(f CGFilter) ConsumerGroupList {
+	var result ConsumerGroupList
+	for _, cg := range l {
+		if f(cg) {
+			result = append(result, cg)
+		}
+	}
+	return result
+}
+
 func (t ConsumerGroupList) TableHeader() []string {
 	return consumerGroupHeader
 }

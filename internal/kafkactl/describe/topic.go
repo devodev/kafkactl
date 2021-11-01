@@ -67,9 +67,14 @@ func (o *describeTopicOptions) run() error {
 		return util.MakeCLIError("describe", "topic", err)
 	}
 
-	// TODO: filter groups by topic (use consumer assignments)
+	// TODO: Also filter consumers within consumer group
+	groups = groups.Filter(presentation.CGForTopic(o.topic))
 
 	// TODO: Add offset/lag to group output
+
+	// TODO: Add consumers count in partitions
+	// TODO: AND/OR
+	// TODO: Add consumers section
 
 	container := describeTopicContainer{
 		Topic:  topic,
