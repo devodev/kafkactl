@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	topicHeader  = []string{"topic_name", "replication_factor", "partitions_count", "configs_overridden", "is_internal"}
+	topicHeader  = []string{"topic_name", "replication_factor", "partitions_count", "configs", "is_internal"}
 	topicDataMap = func(data Topic) map[string]string {
 		return map[string]string{
 			"topic_name":         data.TopicName,
@@ -22,28 +22,38 @@ var (
 	TopicDescribeTemplate = `
 {{- $partitionsTable := tableify .Partitions -}}
 {{- $groupsTable := tableify .Groups -}}
-{{- printf "%-25s %s" "Topic:" .TopicName }}
+
+{{- /* TOPIC */ -}}
+{{ printf "%-25s %s" "Topic:" .TopicName }}
 {{ printf "%-25s %d" "ReplicationFactor:" .ReplicationFactor }}
 {{ printf "%-25s %d" "PartitionsCount:" .PartitionsCount }}
 {{ printf "%-25s %v" "IsInternal:" .IsInternal }}
-{{- if eq (len .ConfigsOverridden) 0 }}
-{{ printf "%-25s -" "Configs:" -}}
-{{- end }}
-{{- range $idx, $config := .ConfigsOverridden -}}
+
+{{- /* EMPTY CONFIGS */ -}}
+{{ if eq (len .ConfigsOverridden) 0 }}
+{{ printf "%-25s -" "Configs:" }}
+{{ end }}
+
+{{- /* CONFIGS */ -}}
+{{ range $idx, $config := .ConfigsOverridden }}
 {{- $c := printf "%s=%s" $config.Name $config.Value -}}
-{{- if eq $idx 0 }}
+{{ if eq $idx 0 }}
 {{ printf "%-25s %s" "Configs:" $c -}}
 {{ else }}
-{{ printf "%-25s %s" "" $c -}}
-{{ end -}}
-{{- end }}
+{{- printf "%-25s %s" "" $c -}}
+{{ end }}
+{{ end }}
+
+{{- /* GROUPS */ -}}
 {{ if eq (len .Groups) 0 }}
-{{ printf "%-25s -" "Consumer Groups:" -}}
+{{- printf "%-25s -" "Consumer Groups:" }}
 {{ else }}
-{{ printf "%-25s" "Consumer Groups:" }}
+{{- printf "\n%-25s" "Consumer Groups:" }}
 {{ $groupsTable | indent2 }}
 {{ end }}
-{{ printf "%-25s" "Partitions:" }}
+
+{{- /* PARTITIONS */ -}}
+{{ printf "\n%-25s" "Partitions:" }}
 {{ $partitionsTable | indent2 }}
 `
 )
