@@ -38,7 +38,7 @@ make gendoc
   - [x] Add delete acl
   - [x] Add delete topic
 - [ ] Add describe command
-  - [x] Add describe topic
+  - [ ] Add describe topic (75%)
   - [ ] Add describe cluster
   - [ ] Add describe consumer-group
 - [ ] Add "Consume records" command
@@ -88,4 +88,94 @@ Destroy the local Kafka cluster + Kafka Rest Proxy
 
 ```bash
 make dev-cluster-down
+```
+
+## Examples
+
+List brokers
+
+```bash
+$ kafkactl get brokers
+BROKER-ID   HOST          PARTITION-REPLICAS-COUNT
+1           kafka0:9091   50
+2           kafka1:9092   50
+```
+
+List topics
+
+```bash
+$ kafkactl get topics
+TOPIC-NAME   REPLICATION-FACTOR   PARTITIONS-COUNT   CONFIGS                                     IS-INTERNAL
+zeplin       2                    1                  retention.bytes=1000000,retention.ms=1000   false
+zeplin2      2                    10                 -                                           false
+zeplin3      2                    1                  -                                           false
+```
+
+Create topic
+
+```bash
+$ kafkactl create topic zeplin4 --partitions-count 5
+Topic zeplin4 created successfully
+```
+
+Update topic configuration
+
+```bash
+$ kafkactl update topic-config zeplin2 retention.ms=1000
+Configs of topic with name 'zeplin2' updated/reset successfully
+```
+
+Describe topic
+
+```bash
+$ kafkactl describe topic zeplin2
+Topic:                    zeplin2
+ReplicationFactor:        2
+PartitionsCount:          10
+IsInternal:               false
+Configs:                  retention.bytes=123456
+                          retention.ms=1000
+
+Consumer Groups:
+  CONSUMER-GROUP-ID   STATE    PARTITION-ASSIGNOR   COORDINATOR-BROKER   CONSUMERS-COUNT
+  test-zeplin2-5      STABLE   range                2                    1
+  test-zeplin2-4      STABLE   range                1                    1
+  test-zeplin2-3      STABLE   range                2                    1
+  test-zeplin2-2      STABLE   range                1                    1
+  test-zeplin2-9      STABLE   range                2                    1
+  test-zeplin2-8      STABLE   range                1                    1
+  test-zeplin2-7      STABLE   range                2                    1
+  test-zeplin2-6      STABLE   range                1                    1
+  test-zeplin2-10     STABLE   range                2                    1
+  test-zeplin2-1      STABLE   range                2                    1
+
+Partitions:
+  PARTITION-ID   LEADER-BROKER   REPLICAS   ISR
+  0              1               1,2        1,2
+  1              2               2,1        2,1
+  2              1               1,2        1,2
+  3              2               2,1        2,1
+  4              1               1,2        1,2
+  5              2               2,1        2,1
+  6              1               1,2        1,2
+  7              2               2,1        2,1
+  8              1               1,2        1,2
+  9              2               2,1        2,1
+```
+
+Get consumer lag
+
+```bash
+$ kafkactl get consumer-lag test-zeplin2
+CONSUMER-GROUP-ID   CONSUMER-ID                                                    TOPIC-NAME   PARTITION-ID   CURRENT-OFFSET   LOG-END-OFFSET   LAG
+test-zeplin2        consumer-test-zeplin2-1-0892494d-1293-4839-b3f3-9e023ce0f5a0   zeplin2      0              390              390              0
+test-zeplin2        consumer-test-zeplin2-1-157e9802-3873-4eae-ab71-c182a62fa20c   zeplin2      1              183              183              0
+test-zeplin2        consumer-test-zeplin2-1-1a3dbb73-f884-4f9f-988b-8e6a1fa10861   zeplin2      2              817              817              0
+test-zeplin2        consumer-test-zeplin2-1-1d66c521-330c-4c6d-8ef9-818a8f15c7ec   zeplin2      3              0                0                0
+test-zeplin2        consumer-test-zeplin2-1-2e508a86-5f35-48fd-accd-ea2a0c721193   zeplin2      4              0                0                0
+test-zeplin2        consumer-test-zeplin2-1-3f44f9fb-45ed-4209-827f-c290c256f2b8   zeplin2      5              0                0                0
+test-zeplin2        consumer-test-zeplin2-1-5ed34339-82e0-4584-92af-b968ce257104   zeplin2      6              0                0                0
+test-zeplin2        consumer-test-zeplin2-1-6c1fe913-e8b1-4d6b-9bab-78119490c1fa   zeplin2      7              497              497              0
+test-zeplin2        consumer-test-zeplin2-1-8ab2fa12-e3fc-4b4c-88e4-163e59da1e53   zeplin2      8              113              113              0
+test-zeplin2        consumer-test-zeplin2-1-b38b14b7-3c4c-44ff-89ec-d8b1709a78c1   zeplin2      9              0                0                0
 ```
