@@ -20,8 +20,8 @@ var (
 		}
 	}
 	TopicDescribeTemplate = `
-{{- $partitionsTable := tableify .Partitions  -}}
-{{- $groupsTable := tableify .Groups  -}}
+{{- $partitionsTable := tableify .Partitions -}}
+{{- $groupsTable := tableify .Groups -}}
 {{- printf "%-25s %s" "Topic:" .TopicName }}
 {{ printf "%-25s %d" "ReplicationFactor:" .ReplicationFactor }}
 {{ printf "%-25s %d" "PartitionsCount:" .PartitionsCount }}
@@ -37,14 +37,14 @@ var (
 {{ printf "%-25s %s" "" $c -}}
 {{ end -}}
 {{- end }}
-{{- if eq (len .Groups) 0 }}
+{{ if eq (len .Groups) 0 }}
 {{ printf "%-25s -" "Consumer Groups:" -}}
 {{ else }}
-{{ printf "%-25s" "Active Consumer Groups:" }}
-{{ $groupsTable -}}
-{{- end }}
+{{ printf "%-25s" "Consumer Groups:" }}
+{{ $groupsTable | indent2 }}
+{{ end }}
 {{ printf "%-25s" "Partitions:" }}
-{{ $partitionsTable -}}
+{{ $partitionsTable | indent2 }}
 `
 )
 
