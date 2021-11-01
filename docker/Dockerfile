@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.3
+
 FROM golang:1.17
 
 ARG VERSION=0.0.0-development-SNAPSHOT
@@ -13,14 +15,16 @@ RUN go mod download
 
 COPY cmd ./cmd
 COPY internal ./internal
-RUN go build \
+RUN --mount=type=cache,target=~/.cache/go-build \
+    go build \
 		-ldflags=" \
 			-X 'github.com/devodev/kafkactl/internal/kafkactl.Version=${VERSION}' \
 			-X 'github.com/devodev/kafkactl/internal/kafkactl.Platform=${GOOS}-${GOARCH}'" \
         -o /usr/local/bin/kafkactl \
         ./cmd/kafkactl
 
-RUN go build -o /usr/local/bin/gendoc ./cmd/gendoc
+RUN --mount=type=cache,target=~/.cache/go-build \
+    go build -o /usr/local/bin/gendoc ./cmd/gendoc
 
 COPY docker/docker-entrypoint.sh /
 
